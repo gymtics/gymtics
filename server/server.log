@@ -1,0 +1,7 @@
+[dotenv@17.2.3] injecting env (7) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ✅ audit secrets and track compliance: https://dotenvx.com/ops
+Server running on port 5001
+✅ SQLite Database Connected
+✅ Models Synced
+[Auth] Logged in: kadhir
+[Auth] Logged in: kadhir
