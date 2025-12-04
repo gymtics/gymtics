@@ -77,7 +77,7 @@ if (cluster.isMaster) {
     sequelize.authenticate()
         .then(() => {
             console.log('✅ SQLite Database Connected');
-            return sequelize.sync(); // Sync models with DB
+            return sequelize.sync({ alter: true }); // Sync models with DB (Alter to update schema)
         })
         .then(() => console.log('✅ Models Synced'))
         .catch(err => console.error('❌ Database Error:', err));
