@@ -6,6 +6,7 @@ const MealItem = require('./MealItem');
 const WeightLog = require('./WeightLog');
 const ManualPR = require('./ManualPR');
 const Feedback = require('./Feedback');
+const OTP = require('./OTP');
 
 // Associations
 
@@ -39,5 +40,6 @@ module.exports = {
     MealItem,
     WeightLog,
     ManualPR,
-    Feedback
+    Feedback,
+    OTP
 };

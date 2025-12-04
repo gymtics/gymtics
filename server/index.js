@@ -3,7 +3,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const nodemailer = require('nodemailer');
 const twilio = require('twilio');
-const { sequelize, User, GymLog, WorkoutItem, MealItem, WeightLog, ManualPR, Feedback } = require('./models');
+const { sequelize, User, GymLog, WorkoutItem, MealItem, WeightLog, ManualPR, Feedback, OTP } = require('./models');
 
 dotenv.config();
 
@@ -82,8 +82,8 @@ if (cluster.isMaster) {
         .then(() => console.log('✅ Models Synced'))
         .catch(err => console.error('❌ Database Error:', err));
 
-    // In-memory storage for OTPs (Temporary)
-    const otps = {}; // { emailOrPhone: { code, expires } }
+    // In-memory storage for OTPs REMOVED
+    // const otps = {}; // { emailOrPhone: { code, expires } }
 
     // Email Transporter
     const transporter = nodemailer.createTransport({
@@ -117,7 +117,18 @@ if (cluster.isMaster) {
         }
 
         const code = generateOTP();
-        otps[identifier] = { code, expires: Date.now() + 300000 }; // 5 min expiry
+        const expires = new Date(Date.now() + 300000); // 5 min expiry
+
+        // Store OTP in Database
+        try {
+            // Remove any existing OTP for this identifier
+            await OTP.destroy({ where: { identifier } });
+            // Create new OTP
+            await OTP.create({ identifier, code, expires });
+        } catch (dbErr) {
+            console.error('Database Error (OTP Save):', dbErr);
+            return res.status(500).json({ error: 'Failed to generate OTP' });
+        }
 
         console.log(`[OTP] Generated for ${identifier}: ${code}`);
 
@@ -132,7 +143,10 @@ if (cluster.isMaster) {
                     });
                     console.log(`[Email] Sent to ${identifier}`);
                 } else {
-                    console.log(`[Email] Mock sent to ${identifier} (Missing credentials)`);
+                    console.warn(`[Email] Mock sent to ${identifier} (Missing credentials)`);
+                    // For debugging on Render, log that credentials are missing if they are
+                    if (!process.env.EMAIL_USER) console.error('Missing EMAIL_USER env var');
+                    if (!process.env.EMAIL_PASS) console.error('Missing EMAIL_PASS env var');
                 }
             } else if (method === 'sms') {
                 if (twilioClient && process.env.TWILIO_PHONE) {
@@ -154,19 +168,28 @@ if (cluster.isMaster) {
     });
 
     // API: Verify OTP
-    app.post('/api/auth/verify-otp', (req, res) => {
+    app.post('/api/auth/verify-otp', async (req, res) => {
         const { identifier, code } = req.body;
-        const record = otps[identifier];
-        if (!record) return res.status(400).json({ error: 'OTP not found or expired' });
-        if (Date.now() > record.expires) {
-            delete otps[identifier];
-            return res.status(400).json({ error: 'OTP expired' });
-        }
-        if (record.code === code) {
-            delete otps[identifier];
-            res.json({ success: true, message: 'OTP verified' });
-        } else {
-            res.status(400).json({ error: 'Invalid OTP' });
+
+        try {
+            const record = await OTP.findOne({ where: { identifier } });
+
+            if (!record) return res.status(400).json({ error: 'OTP not found or expired' });
+
+            if (new Date() > new Date(record.expires)) {
+                await OTP.destroy({ where: { identifier } });
+                return res.status(400).json({ error: 'OTP expired' });
+            }
+
+            if (record.code === code) {
+                await OTP.destroy({ where: { identifier } });
+                res.json({ success: true, message: 'OTP verified' });
+            } else {
+                res.status(400).json({ error: 'Invalid OTP' });
+            }
+        } catch (err) {
+            console.error('Verify OTP Error:', err);
+            res.status(500).json({ error: 'Server error during verification' });
         }
     });
 
@@ -174,24 +197,28 @@ if (cluster.isMaster) {
     app.post('/api/auth/reset-password', async (req, res) => {
         const { email, otp, newPassword } = req.body;
 
-        // Verify OTP
-        const record = otps[email];
-        if (!record) return res.status(400).json({ error: 'OTP not found or expired' });
-        if (Date.now() > record.expires) {
-            delete otps[email];
-            return res.status(400).json({ error: 'OTP expired' });
-        }
-        if (record.code !== otp) {
-            return res.status(400).json({ error: 'Invalid OTP' });
-        }
-
-        // Update Password
         try {
+            // Verify OTP
+            const record = await OTP.findOne({ where: { identifier: email } });
+            if (!record) return res.status(400).json({ error: 'OTP not found or expired' });
+
+            if (new Date() > new Date(record.expires)) {
+                await OTP.destroy({ where: { identifier: email } });
+                return res.status(400).json({ error: 'OTP expired' });
+            }
+
+            if (record.code !== otp) {
+                return res.status(400).json({ error: 'Invalid OTP' });
+            }
+
+            // Consume OTP
+            await OTP.destroy({ where: { identifier: email } });
+
+            // Update Password
             const user = await User.findOne({ where: { email } });
             if (!user) return res.status(400).json({ error: 'User not found' });
 
             await user.update({ password: newPassword }); // In prod, hash!
-            delete otps[email]; // Consume OTP
 
             console.log(`[Auth] Password reset for: ${email}`);
             res.json({ success: true, message: 'Password reset successfully' });
