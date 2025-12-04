@@ -1,34 +1,15 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useAuth } from '../utils/store';
-import { useLocalStorage } from '../hooks/useLocalStorage';
-import { useNavigate } from 'react-router-dom';
-import Calendar from '../components/Calendar';
-import { format } from 'date-fns';
+import { foodData, calculateCalories } from '../utils/foodData';
 
 const Dashboard = () => {
-    const { user, logout, updateAvatar } = useAuth();
-    const navigate = useNavigate();
-    const fileInputRef = useRef(null);
-
-    // Date Selection
-    const [selectedDate, setSelectedDate] = useState(new Date());
-    const dateKey = format(selectedDate, 'yyyy-MM-dd');
-
-    // History Data (All dates in one object)
-    const [history, setHistory] = useLocalStorage('gym_app_history', {});
-
-    // Get data for selected date or default
-    const currentData = history[dateKey] || {
-        gymVisited: null, // Default to neutral
-        workouts: [],
-        meals: []
-    };
+    // ... (lines 9-27)
 
     // Input States
     const [workoutInput, setWorkoutInput] = useState('');
     const [setsInput, setSetsInput] = useState('');
     const [repsInput, setRepsInput] = useState('');
     const [mealInput, setMealInput] = useState('');
+    const [mealQuantity, setMealQuantity] = useState('');
+    const [mealUnit, setMealUnit] = useState('grams');
     const [mealType, setMealType] = useState('Pre-workout');
 
     const handleLogout = () => {
@@ -99,16 +80,23 @@ const Dashboard = () => {
     const addMeal = (e) => {
         e.preventDefault();
         if (!mealInput.trim()) return;
+
+        const calories = calculateCalories(mealInput, parseFloat(mealQuantity) || 0, mealUnit);
+
         updateHistory({
             ...currentData,
             meals: [...currentData.meals, {
                 id: Date.now(),
                 type: mealType,
                 text: mealInput,
+                quantity: mealQuantity,
+                unit: mealUnit,
+                calories: calories,
                 completed: false
             }]
         });
         setMealInput('');
+        setMealQuantity('');
     };
 
     const deleteItem = (type, id) => {
@@ -125,41 +113,111 @@ const Dashboard = () => {
         }
     };
 
-    <div
-        onClick={toggleGym}
-        style={{
-            width: '80px',
-            height: '40px',
-            background: currentData.gymVisited === true ? '#4ade80' : currentData.gymVisited === false ? '#ff4444' : 'var(--glass-bg)',
-            borderRadius: '20px',
-            position: 'relative',
-            cursor: 'pointer',
-            transition: 'background 0.3s'
-        }}
-    >
-        <div style={{
-            width: '32px',
-            height: '32px',
-            background: 'white',
-            borderRadius: '50%',
-            position: 'absolute',
-            top: '4px',
-            left: currentData.gymVisited === true ? '44px' : currentData.gymVisited === false ? '4px' : '24px', // Center for neutral
-            transition: 'left 0.3s',
-            boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '1.2rem'
-        }}>
-            {currentData.gymVisited === true ? '✅' : currentData.gymVisited === false ? '❌' : ''}
-        </div>
-    </div>
-                        </div >
-                    </div >
+    return (
+        <div className="container" style={{ paddingBottom: '4rem' }}>
+            {/* Header */}
+            <header style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '2rem 0',
+                marginBottom: '2rem'
+            }}>
+                <div className="flex-center" style={{ gap: '1rem' }}>
+                    <div
+                        style={{
+                            width: '60px',
+                            height: '60px',
+                            borderRadius: '50%',
+                            overflow: 'hidden',
+                            border: '2px solid var(--primary)',
+                            cursor: 'pointer',
+                            position: 'relative'
+                        }}
+                        onClick={() => fileInputRef.current.click()}
+                    >
+                        {user?.avatar ? (
+                            <img src={user.avatar} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                            <div style={{ width: '100%', height: '100%', background: 'var(--glass-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <span style={{ fontSize: '1.5rem' }}>👤</span>
+                            </div>
+                        )}
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            style={{ display: 'none' }}
+                            accept="image/*,.heic,.heif"
+                            onChange={handleAvatarUpload}
+                        />
+                    </div>
+                    <div>
+                        <h3 style={{ margin: 0 }}>Hello, <span className="text-gradient">{user?.username || 'User'}</span></h3>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>{new Date().toDateString()}</p>
+                    </div>
+                </div>
+                <button className="btn-outline" onClick={handleLogout} style={{ padding: '8px 16px', fontSize: '0.9rem' }}>
+                    Logout
+                </button>
+            </header>
 
-    {/* Workout Log */ }
-    < div className = "glass-panel animate-slide-up" style = {{ padding: '2rem', animationDelay: '0.1s' }}>
+            {/* Main Grid Layout */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '2rem' }}>
+
+                {/* Left Column: Calendar */}
+                <div>
+                    <Calendar
+                        selectedDate={selectedDate}
+                        onDateSelect={setSelectedDate}
+                        gymHistory={history}
+                    />
+                </div>
+
+                {/* Right Column: Details for Selected Date */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+
+                    {/* Date Header & Gym Toggle */}
+                    <div className="glass-panel animate-slide-up" style={{ padding: '2rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div>
+                                <h2 style={{ fontSize: '1.8rem' }}>{format(selectedDate, 'MMMM do')}</h2>
+                                <p style={{ color: 'var(--text-muted)' }}>Did you go to the gym?</p>
+                            </div>
+                            <div
+                                onClick={toggleGym}
+                                style={{
+                                    width: '80px',
+                                    height: '40px',
+                                    background: currentData.gymVisited === true ? '#4ade80' : currentData.gymVisited === false ? '#ff4444' : 'var(--glass-bg)',
+                                    borderRadius: '20px',
+                                    position: 'relative',
+                                    cursor: 'pointer',
+                                    transition: 'background 0.3s'
+                                }}
+                            >
+                                <div style={{
+                                    width: '32px',
+                                    height: '32px',
+                                    background: 'white',
+                                    borderRadius: '50%',
+                                    position: 'absolute',
+                                    top: '4px',
+                                    left: currentData.gymVisited === true ? '44px' : currentData.gymVisited === false ? '4px' : '24px', // Center for neutral
+                                    transition: 'left 0.3s',
+                                    boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '1.2rem'
+                                }}>
+                                    {currentData.gymVisited === true ? '✅' : currentData.gymVisited === false ? '❌' : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Workout Log */}
+                    <div className="glass-panel animate-slide-up" style={{ padding: '2rem', animationDelay: '0.1s' }}>
                         <h3 style={{ marginBottom: '1.5rem', color: 'var(--secondary)' }}>Workout Log</h3>
                         <form onSubmit={addWorkout} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
                             <input
@@ -228,13 +286,13 @@ const Dashboard = () => {
                             ))}
                             {currentData.workouts.length === 0 && <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>No workouts logged.</p>}
                         </ul>
-                    </div >
+                    </div>
 
-    {/* Food Log */ }
-    < div className = "glass-panel animate-slide-up" style = {{ padding: '2rem', animationDelay: '0.2s' }}>
+                    {/* Food Log */}
+                    <div className="glass-panel animate-slide-up" style={{ padding: '2rem', animationDelay: '0.2s' }}>
                         <h3 style={{ marginBottom: '1.5rem', color: 'var(--primary)' }}>Food Log</h3>
                         <form onSubmit={addMeal} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem' }}>
-                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                                 <select
                                     value={mealType}
                                     onChange={(e) => setMealType(e.target.value)}
@@ -244,7 +302,9 @@ const Dashboard = () => {
                                         color: 'white',
                                         padding: '12px',
                                         borderRadius: 'var(--radius-sm)',
-                                        outline: 'none'
+                                        outline: 'none',
+                                        flex: 1,
+                                        minWidth: '120px'
                                     }}
                                 >
                                     <option>Pre-workout</option>
@@ -255,11 +315,43 @@ const Dashboard = () => {
                                 </select>
                                 <input
                                     type="text"
-                                    placeholder="What did you eat?"
+                                    placeholder="Food (e.g. Chicken Breast)"
                                     value={mealInput}
                                     onChange={(e) => setMealInput(e.target.value)}
+                                    style={{ flex: 2, minWidth: '150px' }}
+                                    list="food-suggestions"
+                                />
+                                <datalist id="food-suggestions">
+                                    {Object.keys(foodData).map(food => <option key={food} value={food} />)}
+                                </datalist>
+                            </div>
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                <input
+                                    type="number"
+                                    placeholder="Qty"
+                                    value={mealQuantity}
+                                    onChange={(e) => setMealQuantity(e.target.value)}
                                     style={{ flex: 1 }}
                                 />
+                                <select
+                                    value={mealUnit}
+                                    onChange={(e) => setMealUnit(e.target.value)}
+                                    style={{
+                                        background: 'rgba(255,255,255,0.05)',
+                                        border: '1px solid var(--glass-border)',
+                                        color: 'white',
+                                        padding: '12px',
+                                        borderRadius: 'var(--radius-sm)',
+                                        outline: 'none',
+                                        flex: 1
+                                    }}
+                                >
+                                    <option value="grams">grams</option>
+                                    <option value="ml">ml</option>
+                                    <option value="units">units</option>
+                                    <option value="oz">oz</option>
+                                    <option value="cups">cups</option>
+                                </select>
                             </div>
                             <button type="submit" className="btn-primary">Add Meal</button>
                         </form>
@@ -283,14 +375,18 @@ const Dashboard = () => {
                                             style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: 'var(--primary)' }}
                                         />
                                         <div>
-                                            <span style={{
-                                                fontSize: '0.8rem',
-                                                color: 'var(--primary)',
-                                                textTransform: 'uppercase',
-                                                fontWeight: 'bold',
-                                                marginRight: '0.5rem'
-                                            }}>{item.type}</span>
-                                            <span style={{ textDecoration: item.completed ? 'line-through' : 'none' }}>{item.text}</span>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <span style={{
+                                                    fontSize: '0.8rem',
+                                                    color: 'var(--primary)',
+                                                    textTransform: 'uppercase',
+                                                    fontWeight: 'bold'
+                                                }}>{item.type}</span>
+                                                <span style={{ textDecoration: item.completed ? 'line-through' : 'none', fontWeight: 'bold' }}>{item.text}</span>
+                                            </div>
+                                            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                                                {item.quantity} {item.unit} {item.calories ? `• ${item.calories} kcal` : ''}
+                                            </div>
                                         </div>
                                     </div>
                                     <button
@@ -301,11 +397,11 @@ const Dashboard = () => {
                             ))}
                             {currentData.meals.length === 0 && <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>No meals logged.</p>}
                         </div>
-                    </div >
+                    </div>
 
-                </div >
-            </div >
-        </div >
+                </div>
+            </div>
+        </div>
     );
 };
 
