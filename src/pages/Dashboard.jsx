@@ -7,6 +7,8 @@ const Dashboard = () => {
     const [workoutInput, setWorkoutInput] = useState('');
     const [setsInput, setSetsInput] = useState('');
     const [repsInput, setRepsInput] = useState('');
+    const [weightInput, setWeightInput] = useState('');
+    const [category, setCategory] = useState('Strength');
     const [mealInput, setMealInput] = useState('');
     const [mealQuantity, setMealQuantity] = useState('');
     const [mealUnit, setMealUnit] = useState('grams');
@@ -69,12 +71,15 @@ const Dashboard = () => {
                 text: workoutInput,
                 sets: setsInput,
                 reps: repsInput,
+                weight: weightInput,
+                category: category,
                 completed: false
             }]
         });
         setWorkoutInput('');
         setSetsInput('');
         setRepsInput('');
+        setWeightInput('');
     };
 
     const addMeal = (e) => {
@@ -219,29 +224,59 @@ const Dashboard = () => {
                     {/* Workout Log */}
                     <div className="glass-panel animate-slide-up" style={{ padding: '2rem', animationDelay: '0.1s' }}>
                         <h3 style={{ marginBottom: '1.5rem', color: 'var(--secondary)' }}>Workout Log</h3>
-                        <form onSubmit={addWorkout} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-                            <input
-                                type="text"
-                                placeholder="Exercise (e.g. Bench Press)"
-                                value={workoutInput}
-                                onChange={(e) => setWorkoutInput(e.target.value)}
-                                style={{ flex: 2, minWidth: '150px' }}
-                            />
-                            <input
-                                type="number"
-                                placeholder="Sets"
-                                value={setsInput}
-                                onChange={(e) => setSetsInput(e.target.value)}
-                                style={{ flex: 1, minWidth: '60px' }}
-                            />
-                            <input
-                                type="number"
-                                placeholder="Reps"
-                                value={repsInput}
-                                onChange={(e) => setRepsInput(e.target.value)}
-                                style={{ flex: 1, minWidth: '60px' }}
-                            />
-                            <button type="submit" className="btn-primary" style={{ padding: '0 1.5rem' }}>+</button>
+                        <form onSubmit={addWorkout} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem' }}>
+                            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                <select
+                                    value={category}
+                                    onChange={(e) => setCategory(e.target.value)}
+                                    style={{
+                                        background: 'rgba(255,255,255,0.05)',
+                                        border: '1px solid var(--glass-border)',
+                                        color: 'white',
+                                        padding: '12px',
+                                        borderRadius: 'var(--radius-sm)',
+                                        outline: 'none',
+                                        flex: 1,
+                                        minWidth: '120px'
+                                    }}
+                                >
+                                    <option>Strength</option>
+                                    <option>Cardio</option>
+                                    <option>Flexibility</option>
+                                    <option>Other</option>
+                                </select>
+                                <input
+                                    type="text"
+                                    placeholder="Exercise (e.g. Bench Press)"
+                                    value={workoutInput}
+                                    onChange={(e) => setWorkoutInput(e.target.value)}
+                                    style={{ flex: 2, minWidth: '150px' }}
+                                />
+                            </div>
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                <input
+                                    type="number"
+                                    placeholder="Sets"
+                                    value={setsInput}
+                                    onChange={(e) => setSetsInput(e.target.value)}
+                                    style={{ flex: 1, minWidth: '60px' }}
+                                />
+                                <input
+                                    type="number"
+                                    placeholder="Reps"
+                                    value={repsInput}
+                                    onChange={(e) => setRepsInput(e.target.value)}
+                                    style={{ flex: 1, minWidth: '60px' }}
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Weight (kg)"
+                                    value={weightInput}
+                                    onChange={(e) => setWeightInput(e.target.value)}
+                                    style={{ flex: 1, minWidth: '60px' }}
+                                />
+                            </div>
+                            <button type="submit" className="btn-primary">Add Workout</button>
                         </form>
                         <ul style={{ listStyle: 'none' }}>
                             {currentData.workouts.map(item => (
@@ -264,16 +299,24 @@ const Dashboard = () => {
                                             style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: 'var(--primary)' }}
                                         />
                                         <div>
-                                            <span style={{
-                                                fontWeight: 'bold',
-                                                display: 'block',
-                                                textDecoration: item.completed ? 'line-through' : 'none'
-                                            }}>{item.text}</span>
-                                            {(item.sets || item.reps) && (
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <span style={{
+                                                    fontSize: '0.8rem',
+                                                    color: 'var(--secondary)',
+                                                    textTransform: 'uppercase',
+                                                    fontWeight: 'bold'
+                                                }}>{item.category || 'Strength'}</span>
+                                                <span style={{
+                                                    fontWeight: 'bold',
+                                                    textDecoration: item.completed ? 'line-through' : 'none'
+                                                }}>{item.text}</span>
+                                            </div>
+                                            {(item.sets || item.reps || item.weight) && (
                                                 <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
                                                     {item.sets ? `${item.sets} Sets` : ''}
                                                     {item.sets && item.reps ? ' x ' : ''}
                                                     {item.reps ? `${item.reps} Reps` : ''}
+                                                    {item.weight ? ` @ ${item.weight}kg` : ''}
                                                 </span>
                                             )}
                                         </div>
