@@ -35,7 +35,7 @@ const DashboardDay = () => {
 
     // Get data for selected date or default
     const currentData = history[date] || {
-        gymVisited: false,
+        gymVisited: null,
         workouts: [],
         meals: []
     };
