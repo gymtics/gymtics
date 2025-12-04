@@ -26,7 +26,7 @@ const sequelize = databaseUrl
     })
     : new Sequelize({
         dialect: 'sqlite',
-        storage: './database.sqlite', // Local database file
+        storage: process.env.DB_PATH || './database.sqlite', // Local database file or custom path
         logging: false
     });
 

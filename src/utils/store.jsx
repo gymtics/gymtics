@@ -1,6 +1,6 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+const API_URL = '/api';
 
 
 
@@ -28,7 +28,8 @@ export const AuthProvider = ({ children }) => {
       }
       return { success: false, error: data.error };
     } catch (err) {
-      return { success: false, error: 'Server error' };
+      console.error("Login Error:", err);
+      return { success: false, error: `Server error: ${err.message}` };
     }
   };
 
@@ -47,7 +48,8 @@ export const AuthProvider = ({ children }) => {
       }
       return { success: false, error: data.error };
     } catch (err) {
-      return { success: false, error: 'Server error' };
+      console.error("Register Error:", err);
+      return { success: false, error: `Server error: ${err.message}` };
     }
   };
 
@@ -82,9 +84,14 @@ export const AuthProvider = ({ children }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ method, identifier, type })
       });
-      return await res.json();
+      const data = await res.json(); // Parse JSON response
+      if (data.success) {
+        return { success: true, message: data.message };
+      }
+      return { success: false, error: data.error || 'Failed to send OTP' };
     } catch (err) {
-      return { success: false, error: 'Failed to send OTP' };
+      console.error("Send OTP Error:", err);
+      return { success: false, error: `Failed to send OTP: ${err.message}` };
     }
   };
 
@@ -97,7 +104,8 @@ export const AuthProvider = ({ children }) => {
       });
       return await res.json();
     } catch (err) {
-      return { success: false, error: 'Failed to verify OTP' };
+      console.error("Verify OTP Error:", err);
+      return { success: false, error: `Failed to verify OTP: ${err.message}` };
     }
   };
 

@@ -48,6 +48,12 @@ if (cluster.isMaster) {
 } else {
     const app = express();
 
+    // Request Logging (Moved to top)
+    app.use((req, res, next) => {
+        logger.info(`${req.method} ${req.url}`);
+        next();
+    });
+
     // Security & Performance Middleware
     app.use(helmet());
     app.use(compression());
@@ -65,10 +71,7 @@ if (cluster.isMaster) {
     app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
     // Request Logging
-    app.use((req, res, next) => {
-        logger.info(`${req.method} ${req.url}`);
-        next();
-    });
+
 
     // Database Connection & Sync
     sequelize.authenticate()
@@ -145,8 +148,8 @@ if (cluster.isMaster) {
             }
             res.json({ success: true, message: 'OTP sent successfully' });
         } catch (error) {
-            console.error('Send OTP Error:', error);
-            res.status(500).json({ error: 'Failed to send OTP' });
+            console.error('Send OTP Error:', error.message, error.stack);
+            res.status(500).json({ error: 'Failed to send OTP: ' + error.message });
         }
     });
 
@@ -232,8 +235,8 @@ if (cluster.isMaster) {
                 res.status(401).json({ error: 'Invalid credentials' });
             }
         } catch (err) {
-            console.error(err);
-            res.status(500).json({ error: 'Server error' });
+            console.error('Login Error:', err.message, err.stack);
+            res.status(500).json({ error: 'Server error: ' + err.message });
         }
     });
 
