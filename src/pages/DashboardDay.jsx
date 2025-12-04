@@ -289,7 +289,7 @@ const DashboardDay = () => {
                                 fontSize: '1.2rem'
                             }}>
                                 {currentData.gymVisited === true ? '✅' :
-                                    currentData.gymVisited === false ? '❌' : '❓'}
+                                    currentData.gymVisited === false ? '❌' : ''}
                             </div>
                         </div>
                     </div>
