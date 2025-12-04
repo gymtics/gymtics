@@ -61,7 +61,7 @@ const Calendar = ({ selectedDate, onDateSelect, gymHistory = {} }) => {
                                 borderRadius: 'var(--radius-sm)',
                                 cursor: 'pointer',
                                 background: isSelected ? 'var(--primary)' : hasVisited === true ? '#4ade80' : hasVisited === false ? '#ff4444' : 'transparent',
-                                color: isSelected ? 'var(--bg-dark)' : (hasVisited === true || hasVisited === false) ? 'black' : isCurrentMonth ? 'white' : 'var(--text-muted)',
+                                color: isSelected ? 'var(--bg-dark)' : (hasVisited === true || hasVisited === false) ? 'white' : isCurrentMonth ? 'white' : 'var(--text-muted)',
                                 opacity: isCurrentMonth ? 1 : 0.4,
                                 position: 'relative',
                                 transition: 'all 0.2s',
@@ -69,17 +69,15 @@ const Calendar = ({ selectedDate, onDateSelect, gymHistory = {} }) => {
                                 flexDirection: 'column',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                minHeight: '60px'
+                                minHeight: '60px',
+                                gap: '4px'
                             }}
                         >
-                            <span style={{ fontWeight: 'bold' }}>{format(day, 'd')}</span>
+                            <span style={{ fontWeight: 'bold', fontSize: '1rem', zIndex: 1 }}>{format(day, 'd')}</span>
 
-                            {/* Indicator - Only show if not null */}
-                            {hasVisited != null && (
-                                <span style={{ fontSize: '0.8rem', marginTop: '4px' }}>
-                                    {hasVisited ? '✅' : '❌'}
-                                </span>
-                            )}
+                            {/* Indicator - Explicit checks */}
+                            {hasVisited === true && <span style={{ fontSize: '0.8rem' }}>✅</span>}
+                            {hasVisited === false && <span style={{ fontSize: '0.8rem' }}>❌</span>}
                         </div>
                     );
                 })}
