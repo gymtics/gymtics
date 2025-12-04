@@ -61,7 +61,7 @@ const Calendar = ({ selectedDate, onDateSelect, gymHistory = {} }) => {
                                 borderRadius: 'var(--radius-sm)',
                                 cursor: 'pointer',
                                 background: isSelected ? 'var(--primary)' : hasVisited === true ? '#4ade80' : hasVisited === false ? '#ff4444' : 'transparent',
-                                color: isSelected || hasVisited !== undefined ? 'var(--bg-dark)' : isCurrentMonth ? 'white' : 'var(--text-muted)',
+                                color: isSelected ? 'var(--bg-dark)' : (hasVisited === true || hasVisited === false) ? 'black' : isCurrentMonth ? 'white' : 'var(--text-muted)',
                                 opacity: isCurrentMonth ? 1 : 0.4,
                                 position: 'relative',
                                 transition: 'all 0.2s',
@@ -74,8 +74,8 @@ const Calendar = ({ selectedDate, onDateSelect, gymHistory = {} }) => {
                         >
                             <span style={{ fontWeight: 'bold' }}>{format(day, 'd')}</span>
 
-                            {/* Indicator */}
-                            {hasVisited !== undefined && (
+                            {/* Indicator - Only show if not null */}
+                            {hasVisited != null && (
                                 <span style={{ fontSize: '0.8rem', marginTop: '4px' }}>
                                     {hasVisited ? '✅' : '❌'}
                                 </span>

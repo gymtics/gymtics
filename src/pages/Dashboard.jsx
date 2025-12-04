@@ -19,7 +19,7 @@ const Dashboard = () => {
 
     // Get data for selected date or default
     const currentData = history[dateKey] || {
-        gymVisited: false,
+        gymVisited: null, // Default to neutral
         workouts: [],
         meals: []
     };
@@ -56,7 +56,12 @@ const Dashboard = () => {
     };
 
     const toggleGym = () => {
-        updateHistory({ ...currentData, gymVisited: !currentData.gymVisited });
+        let nextState;
+        if (currentData.gymVisited === null) nextState = true; // Neutral -> Yes
+        else if (currentData.gymVisited === true) nextState = false; // Yes -> No
+        else nextState = null; // No -> Neutral
+
+        updateHistory({ ...currentData, gymVisited: nextState });
     };
 
     const toggleCompletion = (type, id) => {
@@ -120,111 +125,41 @@ const Dashboard = () => {
         }
     };
 
-    return (
-        <div className="container" style={{ paddingBottom: '4rem' }}>
-            {/* Header */}
-            <header style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '2rem 0',
-                marginBottom: '2rem'
-            }}>
-                <div className="flex-center" style={{ gap: '1rem' }}>
-                    <div
-                        style={{
-                            width: '60px',
-                            height: '60px',
-                            borderRadius: '50%',
-                            overflow: 'hidden',
-                            border: '2px solid var(--primary)',
-                            cursor: 'pointer',
-                            position: 'relative'
-                        }}
-                        onClick={() => fileInputRef.current.click()}
-                    >
-                        {user?.avatar ? (
-                            <img src={user.avatar} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        ) : (
-                            <div style={{ width: '100%', height: '100%', background: 'var(--glass-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <span style={{ fontSize: '1.5rem' }}>👤</span>
-                            </div>
-                        )}
-                        <input
-                            type="file"
-                            ref={fileInputRef}
-                            style={{ display: 'none' }}
-                            accept="image/*,.heic,.heif"
-                            onChange={handleAvatarUpload}
-                        />
-                    </div>
-                    <div>
-                        <h3 style={{ margin: 0 }}>Hello, <span className="text-gradient">{user?.username || 'User'}</span></h3>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>{new Date().toDateString()}</p>
-                    </div>
-                </div>
-                <button className="btn-outline" onClick={handleLogout} style={{ padding: '8px 16px', fontSize: '0.9rem' }}>
-                    Logout
-                </button>
-            </header>
+    <div
+        onClick={toggleGym}
+        style={{
+            width: '80px',
+            height: '40px',
+            background: currentData.gymVisited === true ? '#4ade80' : currentData.gymVisited === false ? '#ff4444' : 'var(--glass-bg)',
+            borderRadius: '20px',
+            position: 'relative',
+            cursor: 'pointer',
+            transition: 'background 0.3s'
+        }}
+    >
+        <div style={{
+            width: '32px',
+            height: '32px',
+            background: 'white',
+            borderRadius: '50%',
+            position: 'absolute',
+            top: '4px',
+            left: currentData.gymVisited === true ? '44px' : currentData.gymVisited === false ? '4px' : '24px', // Center for neutral
+            transition: 'left 0.3s',
+            boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '1.2rem'
+        }}>
+            {currentData.gymVisited === true ? '✅' : currentData.gymVisited === false ? '❌' : ''}
+        </div>
+    </div>
+                        </div >
+                    </div >
 
-            {/* Main Grid Layout */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '2rem' }}>
-
-                {/* Left Column: Calendar */}
-                <div>
-                    <Calendar
-                        selectedDate={selectedDate}
-                        onDateSelect={setSelectedDate}
-                        gymHistory={history}
-                    />
-                </div>
-
-                {/* Right Column: Details for Selected Date */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-
-                    {/* Date Header & Gym Toggle */}
-                    <div className="glass-panel animate-slide-up" style={{ padding: '2rem' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div>
-                                <h2 style={{ fontSize: '1.8rem' }}>{format(selectedDate, 'MMMM do')}</h2>
-                                <p style={{ color: 'var(--text-muted)' }}>Did you go to the gym?</p>
-                            </div>
-                            <div
-                                onClick={toggleGym}
-                                style={{
-                                    width: '80px',
-                                    height: '40px',
-                                    background: currentData.gymVisited ? 'var(--primary)' : 'var(--glass-bg)',
-                                    borderRadius: '20px',
-                                    position: 'relative',
-                                    cursor: 'pointer',
-                                    transition: 'background 0.3s'
-                                }}
-                            >
-                                <div style={{
-                                    width: '32px',
-                                    height: '32px',
-                                    background: 'white',
-                                    borderRadius: '50%',
-                                    position: 'absolute',
-                                    top: '4px',
-                                    left: currentData.gymVisited ? '44px' : '4px',
-                                    transition: 'left 0.3s',
-                                    boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontSize: '1.2rem'
-                                }}>
-                                    {currentData.gymVisited ? '✅' : '❌'}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Workout Log */}
-                    <div className="glass-panel animate-slide-up" style={{ padding: '2rem', animationDelay: '0.1s' }}>
+    {/* Workout Log */ }
+    < div className = "glass-panel animate-slide-up" style = {{ padding: '2rem', animationDelay: '0.1s' }}>
                         <h3 style={{ marginBottom: '1.5rem', color: 'var(--secondary)' }}>Workout Log</h3>
                         <form onSubmit={addWorkout} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
                             <input
@@ -293,10 +228,10 @@ const Dashboard = () => {
                             ))}
                             {currentData.workouts.length === 0 && <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>No workouts logged.</p>}
                         </ul>
-                    </div>
+                    </div >
 
-                    {/* Food Log */}
-                    <div className="glass-panel animate-slide-up" style={{ padding: '2rem', animationDelay: '0.2s' }}>
+    {/* Food Log */ }
+    < div className = "glass-panel animate-slide-up" style = {{ padding: '2rem', animationDelay: '0.2s' }}>
                         <h3 style={{ marginBottom: '1.5rem', color: 'var(--primary)' }}>Food Log</h3>
                         <form onSubmit={addMeal} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem' }}>
                             <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -366,11 +301,11 @@ const Dashboard = () => {
                             ))}
                             {currentData.meals.length === 0 && <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>No meals logged.</p>}
                         </div>
-                    </div>
+                    </div >
 
-                </div>
-            </div>
-        </div>
+                </div >
+            </div >
+        </div >
     );
 };
 
