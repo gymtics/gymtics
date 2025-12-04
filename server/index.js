@@ -111,35 +111,35 @@ if (cluster.isMaster) {
 
     // API: Send OTP
     app.post('/api/auth/send-otp', async (req, res) => {
-        const { method, identifier, type } = req.body;
-        if (!identifier) return res.status(400).json({ error: 'Identifier required' });
-
-        // Optional: Check user existence based on type
-        if (type === 'register') {
-            const existing = await User.findOne({ where: { email: identifier } });
-            if (existing) return res.status(400).json({ error: 'User already exists' });
-        } else if (type === 'reset') {
-            const existing = await User.findOne({ where: { email: identifier } });
-            if (!existing) return res.status(400).json({ error: 'User not found' });
-        }
-
-        const code = generateOTP();
-        const expires = new Date(Date.now() + 300000); // 5 min expiry
-
-        // Store OTP in Database
         try {
-            // Remove any existing OTP for this identifier
-            await OTP.destroy({ where: { identifier } });
-            // Create new OTP
-            await OTP.create({ identifier, code, expires });
-        } catch (dbErr) {
-            console.error('Database Error (OTP Save):', dbErr);
-            return res.status(500).json({ error: 'Failed to generate OTP' });
-        }
+            const { method, identifier, type } = req.body;
+            if (!identifier) return res.status(400).json({ error: 'Identifier required' });
 
-        console.log(`[OTP] Generated for ${identifier}: ${code}`);
+            // Optional: Check user existence based on type
+            if (type === 'register') {
+                const existing = await User.findOne({ where: { email: identifier } });
+                if (existing) return res.status(400).json({ error: 'User already exists' });
+            } else if (type === 'reset') {
+                const existing = await User.findOne({ where: { email: identifier } });
+                if (!existing) return res.status(400).json({ error: 'User not found' });
+            }
 
-        try {
+            const code = generateOTP();
+            const expires = new Date(Date.now() + 300000); // 5 min expiry
+
+            // Store OTP in Database
+            try {
+                // Remove any existing OTP for this identifier
+                await OTP.destroy({ where: { identifier } });
+                // Create new OTP
+                await OTP.create({ identifier, code, expires });
+            } catch (dbErr) {
+                console.error('Database Error (OTP Save):', dbErr);
+                return res.status(500).json({ error: 'Failed to generate OTP' });
+            }
+
+            console.log(`[OTP] Generated for ${identifier}: ${code}`);
+
             if (method === 'email') {
                 if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
                     try {
@@ -152,21 +152,25 @@ if (cluster.isMaster) {
                         console.log(`[Email] Sent to ${identifier}`);
                     } catch (emailErr) {
                         console.error('[Email] Failed to send:', emailErr);
+                        // Continue even if email fails, so user can maybe see OTP in logs or try again
                     }
                 } else {
                     console.warn(`[Email] Mock sent to ${identifier} (Missing credentials)`);
-                    // For debugging on Render, log that credentials are missing if they are
                     if (!process.env.EMAIL_USER) console.error('Missing EMAIL_USER env var');
                     if (!process.env.EMAIL_PASS) console.error('Missing EMAIL_PASS env var');
                 }
             } else if (method === 'sms') {
                 if (twilioClient && process.env.TWILIO_PHONE) {
-                    await twilioClient.messages.create({
-                        body: `Your Gym App code is: ${code}`,
-                        from: process.env.TWILIO_PHONE,
-                        to: identifier
-                    });
-                    console.log(`[SMS] Sent to ${identifier}`);
+                    try {
+                        await twilioClient.messages.create({
+                            body: `Your Gym App code is: ${code}`,
+                            from: process.env.TWILIO_PHONE,
+                            to: identifier
+                        });
+                        console.log(`[SMS] Sent to ${identifier}`);
+                    } catch (smsErr) {
+                        console.error('[SMS] Failed to send:', smsErr);
+                    }
                 } else {
                     console.log(`[SMS] Mock sent to ${identifier} (Missing credentials)`);
                 }
@@ -453,6 +457,12 @@ if (cluster.isMaster) {
             console.error('Fetch Feedback Error:', err);
             res.status(500).json({ error: 'Failed to fetch feedback' });
         }
+    });
+
+    // Global Error Handler
+    app.use((err, req, res, next) => {
+        console.error('Unhandled Error:', err);
+        res.status(500).json({ error: 'Internal Server Error', details: err.message });
     });
 
     // Serve Static Frontend (Production)
