@@ -13,7 +13,8 @@ const GymLog = sequelize.define('GymLog', {
     },
     gymVisited: {
         type: DataTypes.BOOLEAN,
-        defaultValue: false
+        allowNull: true,
+        defaultValue: null
     }
 });
 

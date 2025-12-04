@@ -94,6 +94,13 @@ if (cluster.isMaster) {
         }
     });
 
+    // Verify Email Configuration on Startup
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+        console.log(`[Email] Configured with user: ${process.env.EMAIL_USER}`);
+    } else {
+        console.warn('[Email] Missing EMAIL_USER or EMAIL_PASS environment variables');
+    }
+
     // Twilio Client
     const twilioClient = process.env.TWILIO_SID && process.env.TWILIO_TOKEN
         ? twilio(process.env.TWILIO_SID, process.env.TWILIO_TOKEN)
@@ -135,13 +142,17 @@ if (cluster.isMaster) {
         try {
             if (method === 'email') {
                 if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-                    await transporter.sendMail({
-                        from: process.env.EMAIL_USER,
-                        to: identifier,
-                        subject: 'Your Gym App Verification Code',
-                        text: `Your verification code is: ${code}`
-                    });
-                    console.log(`[Email] Sent to ${identifier}`);
+                    try {
+                        await transporter.sendMail({
+                            from: process.env.EMAIL_USER,
+                            to: identifier,
+                            subject: 'Your Gym App Verification Code',
+                            text: `Your verification code is: ${code}`
+                        });
+                        console.log(`[Email] Sent to ${identifier}`);
+                    } catch (emailErr) {
+                        console.error('[Email] Failed to send:', emailErr);
+                    }
                 } else {
                     console.warn(`[Email] Mock sent to ${identifier} (Missing credentials)`);
                     // For debugging on Render, log that credentials are missing if they are

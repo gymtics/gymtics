@@ -19,6 +19,18 @@ const MealItem = sequelize.define('MealItem', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    quantity: {
+        type: DataTypes.FLOAT,
+        allowNull: true
+    },
+    unit: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    calories: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
     completed: {
         type: DataTypes.BOOLEAN,
         defaultValue: false

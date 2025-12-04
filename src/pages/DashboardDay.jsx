@@ -5,6 +5,7 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 import { format, parseISO } from 'date-fns';
 
 import { exerciseLibrary, getCategories } from '../utils/exercises';
+import { foodData, calculateCalories } from '../utils/foodData';
 
 const DashboardDay = () => {
     const { date } = useParams();
@@ -45,12 +46,17 @@ const DashboardDay = () => {
 
     // Input States
     const [workoutInput, setWorkoutInput] = useState('');
-    const [weightInput, setWeightInput] = useState('');
-    const [setsInput, setSetsInput] = useState('');
-    const [repsInput, setRepsInput] = useState('');
     const [categoryInput, setCategoryInput] = useState('Chest');
+
+    // Workout Sets State
+    const [currentSets, setCurrentSets] = useState([{ weight: '', reps: '' }]);
+
+    // Food Inputs
     const [mealInput, setMealInput] = useState('');
     const [mealType, setMealType] = useState('Pre-workout');
+    const [mealQuantity, setMealQuantity] = useState('');
+    const [mealUnit, setMealUnit] = useState('100g');
+
     const [showSuggestions, setShowSuggestions] = useState(false);
 
     // Clipboard Data
@@ -58,26 +64,49 @@ const DashboardDay = () => {
 
     // Handlers
     const toggleGymVisited = () => {
-        updateHistory(date, { ...currentData, gymVisited: !currentData.gymVisited });
+        let nextState;
+        if (currentData.gymVisited === null || currentData.gymVisited === undefined) nextState = true; // Unmarked -> Yes
+        else if (currentData.gymVisited === true) nextState = false; // Yes -> No
+        else nextState = null; // No -> Unmarked
+
+        updateHistory(date, { ...currentData, gymVisited: nextState });
+    };
+
+    const handleSetChange = (index, field, value) => {
+        const newSets = [...currentSets];
+        newSets[index][field] = value;
+        setCurrentSets(newSets);
+    };
+
+    const addSetRow = () => {
+        setCurrentSets([...currentSets, { weight: '', reps: '' }]);
+    };
+
+    const removeSetRow = (index) => {
+        if (currentSets.length > 1) {
+            setCurrentSets(currentSets.filter((_, i) => i !== index));
+        }
     };
 
     const addWorkout = (e) => {
         e.preventDefault();
         if (!workoutInput.trim()) return;
+
+        // Filter out empty sets
+        const validSets = currentSets.filter(s => s.weight || s.reps);
+
         const newWorkout = {
-            id: Date.now().toString(), // Use string ID for consistency
+            id: Date.now().toString(),
             text: workoutInput,
-            weight: weightInput,
-            sets: setsInput,
-            reps: repsInput,
             category: categoryInput,
+            sets: JSON.stringify(validSets), // Store as JSON string
             completed: false
         };
         updateHistory(date, { ...currentData, workouts: [...workouts, newWorkout] });
+
+        // Reset form
         setWorkoutInput('');
-        setWeightInput('');
-        setSetsInput('');
-        setRepsInput('');
+        setCurrentSets([{ weight: '', reps: '' }]);
         setShowSuggestions(false);
     };
 
@@ -96,14 +125,21 @@ const DashboardDay = () => {
     const addMeal = (e) => {
         e.preventDefault();
         if (!mealInput.trim()) return;
+
+        const calories = calculateCalories(mealInput, parseFloat(mealQuantity) || 0, mealUnit);
+
         const newMeal = {
             id: Date.now().toString(),
             type: mealType,
             text: mealInput,
+            quantity: parseFloat(mealQuantity),
+            unit: mealUnit,
+            calories: calories,
             completed: false
         };
         updateHistory(date, { ...currentData, meals: [...meals, newMeal] });
         setMealInput('');
+        setMealQuantity('');
     };
 
     const toggleMeal = (id) => {
@@ -228,7 +264,8 @@ const DashboardDay = () => {
                             style={{
                                 width: '80px',
                                 height: '40px',
-                                background: currentData.gymVisited ? 'var(--primary)' : 'var(--glass-bg)',
+                                background: currentData.gymVisited === true ? 'var(--primary)' :
+                                    currentData.gymVisited === false ? 'var(--accent)' : 'var(--glass-bg)',
                                 borderRadius: '20px',
                                 position: 'relative',
                                 cursor: 'pointer',
@@ -242,7 +279,8 @@ const DashboardDay = () => {
                                 borderRadius: '50%',
                                 position: 'absolute',
                                 top: '4px',
-                                left: currentData.gymVisited ? '44px' : '4px',
+                                left: currentData.gymVisited === true ? '44px' :
+                                    currentData.gymVisited === false ? '4px' : '24px', // Center if null
                                 transition: 'left 0.3s',
                                 boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
                                 display: 'flex',
@@ -250,7 +288,8 @@ const DashboardDay = () => {
                                 justifyContent: 'center',
                                 fontSize: '1.2rem'
                             }}>
-                                {currentData.gymVisited ? '✅' : '❌'}
+                                {currentData.gymVisited === true ? '✅' :
+                                    currentData.gymVisited === false ? '❌' : '❓'}
                             </div>
                         </div>
                     </div>
@@ -324,28 +363,36 @@ const DashboardDay = () => {
                                 </div>
                             )}
                         </div>
-                        <input
-                            type="number"
-                            placeholder="kg/lbs"
-                            value={weightInput}
-                            onChange={(e) => setWeightInput(e.target.value)}
-                            style={{ flex: 1, minWidth: '60px' }}
-                        />
-                        <input
-                            type="number"
-                            placeholder="Sets"
-                            value={setsInput}
-                            onChange={(e) => setSetsInput(e.target.value)}
-                            style={{ flex: 1, minWidth: '60px' }}
-                        />
-                        <input
-                            type="number"
-                            placeholder="Reps"
-                            value={repsInput}
-                            onChange={(e) => setRepsInput(e.target.value)}
-                            style={{ flex: 1, minWidth: '60px' }}
-                        />
-                        <button type="submit" className="btn-primary" style={{ padding: '0 1.5rem' }}>+</button>
+
+
+                        {/* Sets Builder */}
+                        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                            {currentSets.map((set, idx) => (
+                                <div key={idx} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                    <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem', width: '20px' }}>#{idx + 1}</span>
+                                    <input
+                                        type="number"
+                                        placeholder="kg"
+                                        value={set.weight}
+                                        onChange={(e) => handleSetChange(idx, 'weight', e.target.value)}
+                                        style={{ flex: 1, minWidth: '60px' }}
+                                    />
+                                    <input
+                                        type="number"
+                                        placeholder="Reps"
+                                        value={set.reps}
+                                        onChange={(e) => handleSetChange(idx, 'reps', e.target.value)}
+                                        style={{ flex: 1, minWidth: '60px' }}
+                                    />
+                                    {currentSets.length > 1 && (
+                                        <button type="button" onClick={() => removeSetRow(idx)} style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer' }}>✕</button>
+                                    )}
+                                </div>
+                            ))}
+                            <button type="button" onClick={addSetRow} style={{ alignSelf: 'flex-start', fontSize: '0.8rem', color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Set</button>
+                        </div>
+
+                        <button type="submit" className="btn-primary" style={{ padding: '0 1.5rem', width: '100%' }}>Add Workout</button>
                     </form>
                     <ul style={{ listStyle: 'none' }}>
                         {workouts.map(item => (
@@ -385,12 +432,29 @@ const DashboardDay = () => {
                                                 textDecoration: item.completed ? 'line-through' : 'none'
                                             }}>{item.text}</span>
                                         </div>
-                                        <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                                            {item.weight ? `${item.weight} kg • ` : ''}
-                                            {item.sets ? `${item.sets} Sets` : ''}
-                                            {item.sets && item.reps ? ' x ' : ''}
-                                            {item.reps ? `${item.reps} Reps` : ''}
-                                        </span>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                            {(() => {
+                                                try {
+                                                    const sets = JSON.parse(item.sets || '[]');
+                                                    if (Array.isArray(sets) && sets.length > 0) {
+                                                        return sets.map((s, i) => (
+                                                            <span key={i} style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                                                                Set {i + 1}: {s.weight}kg x {s.reps}
+                                                            </span>
+                                                        ));
+                                                    }
+                                                } catch (e) { }
+                                                // Fallback for old data
+                                                return (
+                                                    <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                                                        {item.weight ? `${item.weight} kg • ` : ''}
+                                                        {item.sets ? `${item.sets} Sets` : ''}
+                                                        {item.sets && item.reps ? ' x ' : ''}
+                                                        {item.reps ? `${item.reps} Reps` : ''}
+                                                    </span>
+                                                );
+                                            })()}
+                                        </div>
                                     </div>
                                 </div>
                                 <button
@@ -428,11 +492,37 @@ const DashboardDay = () => {
                             </select>
                             <input
                                 type="text"
-                                placeholder="What did you eat?"
+                                placeholder="Food item"
                                 value={mealInput}
                                 onChange={(e) => setMealInput(e.target.value)}
+                                style={{ flex: 2 }}
+                            />
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <input
+                                type="number"
+                                placeholder="Qty"
+                                value={mealQuantity}
+                                onChange={(e) => setMealQuantity(e.target.value)}
                                 style={{ flex: 1 }}
                             />
+                            <select
+                                value={mealUnit}
+                                onChange={(e) => setMealUnit(e.target.value)}
+                                style={{
+                                    background: 'rgba(255,255,255,0.05)',
+                                    border: '1px solid var(--glass-border)',
+                                    color: 'white',
+                                    padding: '12px',
+                                    borderRadius: 'var(--radius-sm)',
+                                    outline: 'none',
+                                    flex: 1
+                                }}
+                            >
+                                <option value="100g">grams (100g base)</option>
+                                <option value="1 unit">unit (e.g. 1 banana)</option>
+                                <option value="100ml">ml (100ml base)</option>
+                            </select>
                         </div>
                         <button type="submit" className="btn-primary">Add Meal</button>
                     </form>
@@ -463,7 +553,15 @@ const DashboardDay = () => {
                                             fontWeight: 'bold',
                                             marginRight: '0.5rem'
                                         }}>{item.type}</span>
-                                        <span style={{ textDecoration: item.completed ? 'line-through' : 'none' }}>{item.text}</span>
+                                        <span style={{ textDecoration: item.completed ? 'line-through' : 'none' }}>
+                                            {item.text}
+                                            {item.calories ? ` (${item.calories} kcal)` : ''}
+                                        </span>
+                                        {item.quantity && (
+                                            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginLeft: '0.5rem' }}>
+                                                {item.quantity} {item.unit === '100g' ? 'g' : item.unit === '100ml' ? 'ml' : 'units'}
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
                                 <button
@@ -476,8 +574,8 @@ const DashboardDay = () => {
                     </div>
                 </div>
 
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 

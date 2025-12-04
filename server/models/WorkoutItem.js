@@ -20,7 +20,7 @@ const WorkoutItem = sequelize.define('WorkoutItem', {
         allowNull: true
     },
     sets: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT, // Changed to TEXT to store JSON string of sets
         allowNull: true
     },
     reps: {
