@@ -155,6 +155,7 @@ export const DataProvider = ({ children }) => {
         .catch(err => {
           console.error("Failed to fetch data:", err);
           setError("Failed to load data. Please check your connection.");
+          setHistory({}); // Prevent undefined history
         })
         .finally(() => setIsLoading(false));
     } else {

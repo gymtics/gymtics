@@ -13,43 +13,47 @@ const ProtectedRoute = ({ children }) => {
   return user ? children : <Navigate to="/" />;
 };
 
+import ErrorBoundary from './components/ErrorBoundary';
+
 const App = () => {
   return (
-    <AuthProvider>
-      <DataProvider>
-        <Router>
-          <Routes>
-            <Route path="/" element={<WelcomePage />} />
-            <Route path="/auth" element={<AuthPages />} />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <DashboardHome />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/dashboard/:date"
-              element={
-                <ProtectedRoute>
-                  <DashboardDay />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/analytics"
-              element={
-                <ProtectedRoute>
-                  <Analytics />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/admin" element={<AdminDashboard />} />
-          </Routes>
-        </Router>
-      </DataProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <DataProvider>
+          <Router>
+            <Routes>
+              <Route path="/" element={<WelcomePage />} />
+              <Route path="/auth" element={<AuthPages />} />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <DashboardHome />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard/:date"
+                element={
+                  <ProtectedRoute>
+                    <DashboardDay />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/analytics"
+                element={
+                  <ProtectedRoute>
+                    <Analytics />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/admin" element={<AdminDashboard />} />
+            </Routes>
+          </Router>
+        </DataProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 };
 
