@@ -34,6 +34,9 @@ const PORT = process.env.PORT || 5001;
 
 const app = express();
 
+// Enable trust proxy for Render (required for rate limiting behind load balancer)
+app.set('trust proxy', 1);
+
 // Request Logging (Moved to top)
 app.use((req, res, next) => {
     logger.info(`${req.method} ${req.url}`);
