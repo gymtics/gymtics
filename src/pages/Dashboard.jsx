@@ -276,6 +276,7 @@ const Dashboard = () => {
                                     style={{ flex: 1, minWidth: '60px' }}
                                 />
                             </div>
+                            {/* Button matches Add Meal size */}
                             <button type="submit" className="btn-primary" style={{ width: '100%' }}>Add Workout</button>
                         </form>
                         <ul style={{ listStyle: 'none' }}>
