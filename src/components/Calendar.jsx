@@ -31,9 +31,41 @@ const Calendar = ({ selectedDate, onDateSelect, gymHistory = {} }) => {
         <div className="glass-panel" style={{ padding: 'var(--spacing-md)' }}>
             {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                <button onClick={prevMonth} className="btn-outline" style={{ padding: '5px 10px' }}>&lt;</button>
-                <h3 style={{ margin: 0 }}>{format(currentMonth, 'MMMM yyyy')}</h3>
-                <button onClick={nextMonth} className="btn-outline" style={{ padding: '5px 10px' }}>&gt;</button>
+                <button
+                    onClick={prevMonth}
+                    className="btn-outline"
+                    style={{
+                        width: '32px',
+                        height: '32px',
+                        padding: 0,
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '1.2rem',
+                        lineHeight: 1
+                    }}
+                >
+                    ‹
+                </button>
+                <h3 style={{ margin: 0, fontSize: '1.2rem' }}>{format(currentMonth, 'MMMM yyyy')}</h3>
+                <button
+                    onClick={nextMonth}
+                    className="btn-outline"
+                    style={{
+                        width: '32px',
+                        height: '32px',
+                        padding: 0,
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '1.2rem',
+                        lineHeight: 1
+                    }}
+                >
+                    ›
+                </button>
             </div>
 
             {/* Days Grid */}
