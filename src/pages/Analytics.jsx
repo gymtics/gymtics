@@ -160,12 +160,13 @@ const Analytics = () => {
                     style={{
                         position: 'absolute',
                         left: 0,
-                        padding: '4px 8px', // Smaller padding
+                        width: 'auto', // Override mobile 100% width
+                        padding: '4px 8px',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '4px',
-                        fontSize: '0.8rem', // Smaller font
-                        border: '1px solid var(--text-muted)', // Subtle border
+                        fontSize: '0.8rem',
+                        border: '1px solid var(--text-muted)',
                         color: 'var(--text-muted)'
                     }}
                 >
