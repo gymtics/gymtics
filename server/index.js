@@ -536,7 +536,6 @@ ${message}
 
         res.json({ success: true, feedback, emailSent });
 
-        res.json({ success: true, feedback });
     } catch (err) {
         console.error('Feedback Error:', err);
         res.status(500).json({ error: 'Failed to save feedback' });
