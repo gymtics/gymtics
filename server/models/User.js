@@ -23,6 +23,11 @@ const User = sequelize.define('User', {
     avatar: {
         type: DataTypes.TEXT, // Use TEXT for base64 strings
         allowNull: true
+    },
+    role: {
+        type: DataTypes.STRING, // 'user' or 'admin'
+        defaultValue: 'user',
+        allowNull: false
     }
 });
 

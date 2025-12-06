@@ -206,6 +206,27 @@ const DashboardHome = () => {
             </div>
             {showDonation && <DonationModal onClose={() => setShowDonation(false)} />}
             {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
+
+            {/* Admin Button (Temporary: Visible to all for easy access) */}
+            <button
+                onClick={() => navigate('/admin')}
+                style={{
+                    position: 'fixed',
+                    bottom: '2rem',
+                    left: '2rem',
+                    background: 'rgba(0,0,0,0.6)',
+                    border: '1px solid var(--glass-border)',
+                    color: 'var(--text-muted)',
+                    padding: '8px 16px',
+                    borderRadius: '20px',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    backdropFilter: 'blur(10px)',
+                    zIndex: 100
+                }}
+            >
+                Admin Panel
+            </button>
         </div>
     );
 };
