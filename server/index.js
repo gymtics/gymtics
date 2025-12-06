@@ -493,6 +493,12 @@ if (process.env.NODE_ENV === 'production') {
     });
 }
 
-app.listen(PORT, () => {
-    console.log(`Server started on port ${PORT}`);
+// Sync Database and Start Server
+sequelize.sync({ alter: true }).then(() => {
+    console.log('✅ Database Connected & Synced');
+    app.listen(PORT, () => {
+        console.log(`Server started on port ${PORT}`);
+    });
+}).catch(err => {
+    console.error('❌ Database Connection Error:', err);
 });
