@@ -7,11 +7,50 @@ import {
 } from 'recharts';
 import { format, parseISO } from 'date-fns';
 
+import { useToast } from '../components/ToastProvider';
+
 const Analytics = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
     const { history, weightLog, addWeight, prs, updatePR, deletePR, isLoading } = useData();
     const [weightInput, setWeightInput] = useState('');
+    const toast = useToast();
+
+    // ... (rest of the component)
+
+    // Inside render loop for PRs
+    {
+        isSet && (
+            <button
+                onClick={(e) => {
+                    e.stopPropagation();
+                    toast.confirm(`Clear ${exercise} record?`, () => {
+                        deletePR(exercise);
+                        toast.success(`Cleared ${exercise} record`);
+                    });
+                }}
+                style={{
+                    marginTop: '10px',
+                    background: 'rgba(255, 68, 68, 0.2)',
+                    border: '1px solid rgba(255, 68, 68, 0.3)',
+                    color: '#ff4444',
+                    borderRadius: '50%',
+                    width: '24px',
+                    height: '24px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    marginLeft: 'auto',
+                    marginRight: 'auto'
+                }}
+                title="Clear Record"
+            >
+                ✕
+            </button>
+        )
+    }
 
     if (isLoading) {
         return (

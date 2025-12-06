@@ -14,45 +14,48 @@ const ProtectedRoute = ({ children }) => {
 };
 
 import ErrorBoundary from './components/ErrorBoundary';
+import { ToastProvider } from './components/ToastProvider';
 
 const App = () => {
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <DataProvider>
-          <Router>
-            <Routes>
-              <Route path="/" element={<WelcomePage />} />
-              <Route path="/auth" element={<AuthPages />} />
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <DashboardHome />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/dashboard/:date"
-                element={
-                  <ProtectedRoute>
-                    <DashboardDay />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/analytics"
-                element={
-                  <ProtectedRoute>
-                    <Analytics />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="/admin" element={<AdminDashboard />} />
-            </Routes>
-          </Router>
-        </DataProvider>
-      </AuthProvider>
+      <ToastProvider>
+        <AuthProvider>
+          <DataProvider>
+            <Router>
+              <Routes>
+                <Route path="/" element={<WelcomePage />} />
+                <Route path="/auth" element={<AuthPages />} />
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <DashboardHome />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/:date"
+                  element={
+                    <ProtectedRoute>
+                      <DashboardDay />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/analytics"
+                  element={
+                    <ProtectedRoute>
+                      <Analytics />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="/admin" element={<AdminDashboard />} />
+              </Routes>
+            </Router>
+          </DataProvider>
+        </AuthProvider>
+      </ToastProvider>
     </ErrorBoundary>
   );
 };

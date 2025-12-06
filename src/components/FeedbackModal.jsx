@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../utils/store';
+import { useToast } from './ToastProvider';
 
 const FeedbackModal = ({ onClose }) => {
     const { user } = useAuth();
@@ -7,33 +8,35 @@ const FeedbackModal = ({ onClose }) => {
     const [message, setMessage] = useState('');
     const [rating, setRating] = useState(5);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const toast = useToast();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
 
         try {
-            const apiUrl = '/api';
+            const apiUrl = import.meta.env.VITE_API_URL;
             const res = await fetch(`${apiUrl}/feedback`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     userId: user.id,
-                    type,
+                    type: 'general', // Changed from dynamic 'type' to hardcoded 'general' as per instruction
                     message,
                     rating
                 })
             });
-            const data = await res.json();
-            if (data.success) {
-                alert('Thank you for your feedback!');
+            // const data = await res.json(); // This line was removed in the instruction, but the instruction only showed a partial change.
+            // Assuming we still want to check res.ok instead of data.success
+            if (res.ok) { // Changed from data.success to res.ok
+                toast.success('Thank you for your feedback!'); // Replaced alert with toast
                 onClose();
             } else {
-                alert('Failed to submit feedback. Please try again.');
+                toast.error('Failed to submit feedback. Please try again.'); // Replaced alert with toast
             }
         } catch (err) {
             console.error(err);
-            alert('Error submitting feedback.');
+            toast.error('Error submitting feedback.'); // Replaced alert with toast
         } finally {
             setIsSubmitting(false);
         }

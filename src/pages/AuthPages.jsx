@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../utils/store';
+import { useToast } from '../components/ToastProvider';
 
 const AuthPages = () => {
     const [isLogin, setIsLogin] = useState(true);
     const navigate = useNavigate();
     const { login, register, sendOtp, verifyOtp } = useAuth();
+    const toast = useToast();
 
     // Registration Steps: 'details' -> 'method' -> 'otp'
     const [regStep, setRegStep] = useState('details');
@@ -117,7 +119,7 @@ const AuthPages = () => {
                 });
                 const data = await res.json();
                 if (data.success) {
-                    alert('Password reset successfully! Please login.');
+                    toast.success('Password reset successfully! Please login.');
                     resetFlow();
                 } else {
                     setError(data.error || 'Failed to reset password');

@@ -7,11 +7,14 @@ const API_URL = '/api';
 // --- Auth Context ---
 const AuthContext = createContext(null);
 
+import { useToast } from '../components/ToastProvider';
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    const saved = window.localStorage.getItem('gym_app_user');
+    const saved = localStorage.getItem('gym_user');
     return saved ? JSON.parse(saved) : null;
   });
+  const toast = useToast();
 
   const login = async (email, password) => {
     try {
@@ -23,7 +26,7 @@ export const AuthProvider = ({ children }) => {
       const data = await res.json();
       if (data.success) {
         setUser(data.user);
-        window.localStorage.setItem('gym_app_user', JSON.stringify(data.user));
+        localStorage.setItem('gym_user', JSON.stringify(data.user));
         return { success: true };
       }
       return { success: false, error: data.error };
@@ -43,7 +46,7 @@ export const AuthProvider = ({ children }) => {
       const data = await res.json();
       if (data.success) {
         setUser(data.user);
-        window.localStorage.setItem('gym_app_user', JSON.stringify(data.user));
+        localStorage.setItem('gym_user', JSON.stringify(data.user));
         return { success: true };
       }
       return { success: false, error: data.error };
@@ -55,14 +58,15 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setUser(null);
-    window.localStorage.removeItem('gym_app_user');
+    localStorage.removeItem('gym_user');
   };
 
   const updateAvatar = async (avatarUrl) => {
-    // Optimistic update
-    const updatedUser = { ...user, avatar: avatarUrl };
-    setUser(updatedUser);
-    window.localStorage.setItem('gym_app_user', JSON.stringify(updatedUser));
+    setUser(prev => {
+      const updated = { ...prev, avatar: avatarUrl };
+      localStorage.setItem('gym_user', JSON.stringify(updated));
+      return updated;
+    });
 
     if (user?.id) {
       try {
@@ -76,11 +80,11 @@ export const AuthProvider = ({ children }) => {
         console.log("Avatar update response:", data);
         if (!data.success) {
           console.error("Server failed to update avatar:", data.error);
-          alert("Failed to save avatar: " + data.error);
+          toast.error("Failed to save avatar: " + data.error);
         }
       } catch (err) {
         console.error("Failed to persist avatar:", err);
-        alert("Network error saving avatar.");
+        toast.error("Network error saving avatar.");
       }
     }
   };

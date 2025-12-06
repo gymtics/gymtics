@@ -5,6 +5,7 @@ import Calendar from '../components/Calendar';
 import DonationModal from '../components/DonationModal';
 import FeedbackModal from '../components/FeedbackModal';
 import { format } from 'date-fns';
+import { useToast } from '../components/ToastProvider';
 
 const DashboardHome = () => {
     const { user, logout, updateAvatar } = useAuth();
@@ -16,6 +17,7 @@ const DashboardHome = () => {
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [isProcessing, setIsProcessing] = useState(false);
+    const toast = useToast();
 
     const handleRemoveAvatar = () => {
         updateAvatar(null);
@@ -63,13 +65,13 @@ const DashboardHome = () => {
                     resolve(canvas.toDataURL('image/jpeg', 0.7)); // Compress to JPEG 70%
                 };
                 img.onerror = () => {
-                    alert("Error: Failed to load image data.");
+                    toast.error("Error: Failed to load image data.");
                     resolve(null);
                 };
                 img.src = e.target.result;
             };
             reader.onerror = () => {
-                alert("Error: Failed to read file.");
+                toast.error("Error: Failed to read file.");
                 resolve(null);
             };
             reader.readAsDataURL(file);
@@ -107,7 +109,7 @@ const DashboardHome = () => {
                 fileToProcess = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
             } catch (err) {
                 console.error("HEIC conversion failed:", err);
-                alert("Could not convert HEIC image. Please try a standard JPEG/PNG.");
+                toast.error("Could not convert HEIC image. Please try a standard JPEG/PNG.");
                 setIsProcessing(false);
                 return;
             }
@@ -117,16 +119,17 @@ const DashboardHome = () => {
             const resizedImage = await resizeImage(fileToProcess);
 
             if (!resizedImage) {
-                alert("Failed to process image.");
+                toast.error("Failed to process image.");
                 setIsProcessing(false);
                 return;
             }
 
             await updateAvatar(resizedImage);
             setIsProcessing(false);
+            toast.success("Profile picture updated!");
         } catch (err) {
             console.error("Image processing failed:", err);
-            alert("Failed to process image: " + err.message);
+            toast.error("Failed to process image: " + err.message);
             setIsProcessing(false);
         }
     };
