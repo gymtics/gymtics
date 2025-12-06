@@ -125,9 +125,8 @@ app.get('/api/debug/email', async (req, res) => {
         console.error('Test Email Failed:', err);
         res.status(500).json({ error: err.message });
     }
-}); else {
-    console.warn('[Email] Missing SMTP/EMAIL credentials. Emails will NOT be sent.');
 }
+});
 
 // Twilio Client
 const twilioClient = process.env.TWILIO_SID && process.env.TWILIO_TOKEN
