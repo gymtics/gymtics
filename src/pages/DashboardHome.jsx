@@ -78,45 +78,54 @@ const DashboardHome = () => {
         const file = e.target.files[0];
         if (!file) return;
 
-        // Debug Alert 1
-        alert(`Selected: ${file.name} (${file.type || 'Unknown Type'})`);
-
+        setIsProcessing(true);
         let fileToProcess = file;
 
         // Check for HEIC/HEIF
         if (file.type === 'image/heic' || file.type === 'image/heif' || file.name.toLowerCase().endsWith('.heic')) {
             try {
-                alert("Converting HEIC image...");
+                // Timeout Promise
+                const timeout = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error("HEIC conversion timed out")), 10000)
+                );
+
                 const heic2any = (await import('heic2any')).default;
-                const convertedBlob = await heic2any({
-                    blob: file,
-                    toType: 'image/jpeg',
-                    quality: 0.8
-                });
+
+                // Race between conversion and timeout
+                const convertedBlob = await Promise.race([
+                    heic2any({
+                        blob: file,
+                        toType: 'image/jpeg',
+                        quality: 0.8
+                    }),
+                    timeout
+                ]);
+
                 // Handle array return (if multiple images in HEIC)
                 fileToProcess = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
-                alert("HEIC conversion successful!");
             } catch (err) {
                 console.error("HEIC conversion failed:", err);
-                alert("Failed to process HEIC image: " + err.message);
+                alert("Could not convert HEIC image. Please try a standard JPEG/PNG.");
+                setIsProcessing(false);
                 return;
             }
         }
 
         try {
-            alert("Resizing image...");
             const resizedImage = await resizeImage(fileToProcess);
 
             if (!resizedImage) {
-                alert("Resize failed (returned null).");
+                alert("Failed to process image.");
+                setIsProcessing(false);
                 return;
             }
 
-            alert("Uploading...");
-            updateAvatar(resizedImage);
+            await updateAvatar(resizedImage);
+            setIsProcessing(false);
         } catch (err) {
             console.error("Image processing failed:", err);
             alert("Failed to process image: " + err.message);
+            setIsProcessing(false);
         }
     };
 
@@ -266,6 +275,35 @@ const DashboardHome = () => {
             </div>
             {showDonation && <DonationModal onClose={() => setShowDonation(false)} />}
             {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
+
+            {/* Processing Overlay */}
+            {isProcessing && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'rgba(0,0,0,0.7)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 2000,
+                    backdropFilter: 'blur(5px)'
+                }}>
+                    <div className="spinner" style={{
+                        width: '40px',
+                        height: '40px',
+                        border: '4px solid rgba(255,255,255,0.3)',
+                        borderTop: '4px solid var(--primary)',
+                        borderRadius: '50%',
+                        animation: 'spin 1s linear infinite',
+                        marginBottom: '1rem'
+                    }}></div>
+                    <p style={{ color: 'white', fontSize: '1.1rem' }}>Processing Image...</p>
+                </div>
+            )}
         </div>
     );
 };
