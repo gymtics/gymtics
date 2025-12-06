@@ -477,6 +477,22 @@ app.post('/api/data/prs', async (req, res) => {
     }
 });
 
+// Delete Manual PR
+app.delete('/api/data/prs', async (req, res) => {
+    const { userId, exercise } = req.body;
+    try {
+        const deleted = await ManualPR.destroy({ where: { userId, exercise } });
+        if (deleted) {
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ error: 'PR not found' });
+        }
+    } catch (err) {
+        console.error("Delete PR Error:", err);
+        res.status(500).json({ error: 'Failed to delete PR' });
+    }
+});
+
 // Save Feedback
 app.post('/api/feedback', async (req, res) => {
     const { userId, type, message, rating } = req.body;

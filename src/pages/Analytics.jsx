@@ -10,7 +10,7 @@ import { format, parseISO } from 'date-fns';
 const Analytics = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
-    const { history, weightLog, addWeight, prs, updatePR, isLoading } = useData();
+    const { history, weightLog, addWeight, prs, updatePR, deletePR, isLoading } = useData();
     const [weightInput, setWeightInput] = useState('');
 
     if (isLoading) {
@@ -449,6 +449,36 @@ const Analytics = () => {
                                     <div style={{ fontSize: '0.8rem', color: isSet ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.1)', marginTop: '4px' }}>
                                         {record.reps} reps
                                     </div>
+
+                                    {isSet && (
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (window.confirm(`Clear ${exercise} record?`)) {
+                                                    deletePR(exercise);
+                                                }
+                                            }}
+                                            style={{
+                                                marginTop: '10px',
+                                                background: 'rgba(255, 68, 68, 0.2)',
+                                                border: '1px solid rgba(255, 68, 68, 0.3)',
+                                                color: '#ff4444',
+                                                borderRadius: '50%',
+                                                width: '24px',
+                                                height: '24px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                cursor: 'pointer',
+                                                fontSize: '0.8rem',
+                                                marginLeft: 'auto',
+                                                marginRight: 'auto'
+                                            }}
+                                            title="Clear Record"
+                                        >
+                                            ✕
+                                        </button>
+                                    )}
                                 </div>
                             );
                         })}

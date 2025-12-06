@@ -224,8 +224,28 @@ export const DataProvider = ({ children }) => {
     }
   };
 
+  const deletePR = async (exercise) => {
+    // Optimistic Update
+    const newPrs = { ...prs };
+    delete newPrs[exercise];
+    setPrs(newPrs);
+
+    if (user?.id) {
+      try {
+        await fetch(`${API_URL}/data/prs`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id, exercise })
+        });
+      } catch (err) {
+        console.error("Failed to delete PR:", err);
+        // Revert on failure could be added here
+      }
+    }
+  };
+
   return (
-    <DataContext.Provider value={{ history, updateHistory, weightLog, addWeight, prs, updatePR, isLoading, error }}>
+    <DataContext.Provider value={{ history, updateHistory, weightLog, addWeight, prs, updatePR, isLoading, error, deletePR }}>
       {children}
     </DataContext.Provider>
   );
