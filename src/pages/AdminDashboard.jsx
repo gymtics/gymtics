@@ -13,7 +13,7 @@ const AdminDashboard = () => {
 
     const fetchFeedback = async () => {
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+            const apiUrl = '/api';
             const res = await fetch(`${apiUrl}/feedback`);
             const data = await res.json();
             if (data.success) {
