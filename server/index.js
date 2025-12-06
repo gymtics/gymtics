@@ -125,7 +125,6 @@ app.get('/api/debug/email', async (req, res) => {
         console.error('Test Email Failed:', err);
         res.status(500).json({ error: err.message });
     }
-}
 });
 
 // Twilio Client
