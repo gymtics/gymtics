@@ -339,8 +339,16 @@ app.post('/api/auth/update-avatar', async (req, res) => {
 // Get History (Gym Logs)
 app.get('/api/data/history/:userId', async (req, res) => {
     try {
+        const { Op } = require('sequelize');
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+        const dateString = sixMonthsAgo.toISOString().split('T')[0];
+
         const logs = await GymLog.findAll({
-            where: { userId: req.params.userId },
+            where: {
+                userId: req.params.userId,
+                date: { [Op.gte]: dateString }
+            },
             include: [WorkoutItem, MealItem]
         });
 
