@@ -152,15 +152,24 @@ const Analytics = () => {
 
     return (
         <div className="container" style={{ paddingBottom: '4rem', paddingTop: '2rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
+            {/* Header */}
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2rem' }}>
                 <button
                     onClick={() => navigate('/dashboard')}
                     className="btn-outline"
-                    style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '5px' }}
+                    style={{
+                        position: 'absolute',
+                        left: 0,
+                        padding: '8px 12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        fontSize: '0.9rem' // Smaller font for mobile look
+                    }}
                 >
                     ← Back
                 </button>
-                <h2 style={{ margin: 0 }}>Analytics</h2>
+                <h2 style={{ margin: 0, textAlign: 'center' }}>Analytics</h2>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -211,17 +220,25 @@ const Analytics = () => {
 
                 {/* Body Weight Tracker */}
                 <div className="glass-panel animate-slide-up" style={{ animationDelay: '0.1s' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
                         <h3 style={{ color: 'var(--secondary)', margin: 0 }}>Body Weight</h3>
-                        <form onSubmit={handleAddWeight} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+                        <form onSubmit={handleAddWeight} style={{ display: 'flex', gap: '0.5rem' }}>
                             <input
                                 type="number"
                                 placeholder="kg/lbs"
                                 value={weightInput}
                                 onChange={(e) => setWeightInput(e.target.value)}
-                                style={{ width: '80px', padding: '5px' }}
+                                style={{
+                                    width: '100px',
+                                    padding: '8px',
+                                    background: 'rgba(255,255,255,0.05)',
+                                    border: '1px solid var(--glass-border)',
+                                    borderRadius: 'var(--radius-sm)',
+                                    color: 'white',
+                                    outline: 'none'
+                                }}
                             />
-                            <button type="submit" className="btn-primary" style={{ padding: '5px 10px' }}>+</button>
+                            <button type="submit" className="btn-primary" style={{ padding: '8px 12px', borderRadius: 'var(--radius-sm)' }}>+</button>
                         </form>
                     </div>
 
@@ -258,12 +275,13 @@ const Analytics = () => {
                                 value={prExercise}
                                 onChange={(e) => setPrExercise(e.target.value)}
                                 style={{
-                                    background: 'rgba(255,255,255,0.1)',
-                                    border: 'none',
+                                    background: 'rgba(255,255,255,0.05)',
+                                    border: '1px solid var(--glass-border)',
                                     color: 'white',
-                                    padding: '5px',
-                                    borderRadius: '4px',
-                                    fontSize: '0.8rem'
+                                    padding: '8px',
+                                    borderRadius: 'var(--radius-sm)',
+                                    fontSize: '0.9rem',
+                                    outline: 'none'
                                 }}
                             >
                                 {['Bench Press', 'Squat', 'Deadlift', 'Pull Ups', 'Push Ups'].map(ex => (
@@ -275,16 +293,34 @@ const Analytics = () => {
                                 placeholder="kg"
                                 value={prWeight}
                                 onChange={(e) => setPrWeight(e.target.value)}
-                                style={{ width: '50px', padding: '5px', fontSize: '0.8rem' }}
+                                style={{
+                                    width: '60px',
+                                    padding: '8px',
+                                    background: 'rgba(255,255,255,0.05)',
+                                    border: '1px solid var(--glass-border)',
+                                    borderRadius: 'var(--radius-sm)',
+                                    color: 'white',
+                                    fontSize: '0.9rem',
+                                    outline: 'none'
+                                }}
                             />
                             <input
                                 type="number"
                                 placeholder="reps"
                                 value={prReps}
                                 onChange={(e) => setPrReps(e.target.value)}
-                                style={{ width: '40px', padding: '5px', fontSize: '0.8rem' }}
+                                style={{
+                                    width: '50px',
+                                    padding: '8px',
+                                    background: 'rgba(255,255,255,0.05)',
+                                    border: '1px solid var(--glass-border)',
+                                    borderRadius: 'var(--radius-sm)',
+                                    color: 'white',
+                                    fontSize: '0.9rem',
+                                    outline: 'none'
+                                }}
                             />
-                            <button type="submit" className="btn-primary" style={{ padding: '5px 10px', fontSize: '0.8rem' }}>+</button>
+                            <button type="submit" className="btn-primary" style={{ padding: '8px 12px', borderRadius: 'var(--radius-sm)' }}>+</button>
                         </form>
                     </div>
 
