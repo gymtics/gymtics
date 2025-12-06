@@ -77,25 +77,21 @@ sequelize.authenticate()
 // Email Transporter
 // Email Transporter
 // Email Transporter
+// Email Transporter
 const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // true for 465, false for other ports
-    requireTLS: true,
+    host: 'smtp.googlemail.com', // Alternative host
+    port: 465,
+    secure: true, // true for 465, false for other ports
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
     },
-    tls: {
-        ciphers: 'SSLv3', // Sometimes helps with older handshakes
-        rejectUnauthorized: false
-    },
-    family: 4, // Force IPv4
-    connectionTimeout: 30000, // 30 seconds
-    greetingTimeout: 30000, // 30 seconds
-    socketTimeout: 30000, // 30 seconds
-    debug: true, // Show low-level debug info
-    logger: true // Log to console
+    // Force IPv4 to avoid IPv6 timeouts
+    family: 4,
+    connectionTimeout: 10000, // 10 seconds
+    socketTimeout: 10000, // 10 seconds
+    debug: true,
+    logger: true
 });
 
 // Verify Email Configuration on Startup
