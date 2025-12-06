@@ -105,7 +105,7 @@ const AuthPages = () => {
                 return;
             }
             try {
-                const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+                const apiUrl = '/api';
                 const res = await fetch(`${apiUrl}/auth/reset-password`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
