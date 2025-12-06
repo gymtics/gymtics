@@ -15,6 +15,7 @@ const DashboardHome = () => {
     const [showFeedback, setShowFeedback] = useState(false);
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     const [selectedDate, setSelectedDate] = useState(new Date());
+    const [isProcessing, setIsProcessing] = useState(false);
 
     const handleRemoveAvatar = () => {
         updateAvatar(null);
