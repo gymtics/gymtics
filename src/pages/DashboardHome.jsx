@@ -88,9 +88,11 @@ const DashboardHome = () => {
         // Check for HEIC/HEIF
         if (file.type === 'image/heic' || file.type === 'image/heif' || file.name.toLowerCase().endsWith('.heic')) {
             try {
-                // Timeout Promise
+                toast.info("Converting HEIC image... this may take a moment.");
+
+                // Timeout Promise (30 seconds)
                 const timeout = new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error("HEIC conversion timed out")), 10000)
+                    setTimeout(() => reject(new Error("HEIC conversion timed out (30s)")), 30000)
                 );
 
                 const heic2any = (await import('heic2any')).default;
@@ -107,9 +109,10 @@ const DashboardHome = () => {
 
                 // Handle array return (if multiple images in HEIC)
                 fileToProcess = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+                toast.success("HEIC conversion successful!");
             } catch (err) {
                 console.error("HEIC conversion failed:", err);
-                toast.error("Could not convert HEIC image. Please try a standard JPEG/PNG.");
+                toast.error(`HEIC Error: ${err.message}. Try a standard JPEG.`);
                 setIsProcessing(false);
                 return;
             }

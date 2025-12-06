@@ -105,6 +105,27 @@ if (emailUser && emailPass) {
         }
     });
 } else {
+    console.warn('[Email] SMTP credentials missing. Email features will be disabled.');
+}
+
+// Debug Email Route
+app.get('/api/debug/email', async (req, res) => {
+    try {
+        const emailUser = process.env.SMTP_USER || process.env.EMAIL_USER;
+        if (!emailUser) return res.status(400).json({ error: 'No email credentials' });
+
+        await transporter.sendMail({
+            from: process.env.EMAIL_FROM || emailUser,
+            to: 'gymtics0@gmail.com',
+            subject: 'Test Email from Gymtics',
+            text: 'This is a test email to verify SMTP configuration.'
+        });
+        res.json({ success: true, message: 'Test email sent' });
+    } catch (err) {
+        console.error('Test Email Failed:', err);
+        res.status(500).json({ error: err.message });
+    }
+}); else {
     console.warn('[Email] Missing SMTP/EMAIL credentials. Emails will NOT be sent.');
 }
 
