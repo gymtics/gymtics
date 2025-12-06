@@ -81,6 +81,9 @@ const transporter = nodemailer.createTransport({
         user: process.env.SMTP_USER || process.env.EMAIL_USER,
         pass: process.env.SMTP_PASS || process.env.EMAIL_PASS
     },
+    tls: {
+        rejectUnauthorized: false // Help with some strict firewall/proxy issues
+    },
     // Force IPv4
     family: 4,
     // General timeouts

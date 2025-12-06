@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useAuth, useData } from '../utils/store';
 import { useNavigate } from 'react-router-dom';
+import heic2any from 'heic2any';
 import Calendar from '../components/Calendar';
 import DonationModal from '../components/DonationModal';
 import FeedbackModal from '../components/FeedbackModal';
@@ -94,8 +95,6 @@ const DashboardHome = () => {
                 const timeout = new Promise((_, reject) =>
                     setTimeout(() => reject(new Error("HEIC conversion timed out (30s)")), 30000)
                 );
-
-                const heic2any = (await import('heic2any')).default;
 
                 // Race between conversion and timeout
                 const convertedBlob = await Promise.race([
