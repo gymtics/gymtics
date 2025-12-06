@@ -218,19 +218,29 @@ const DashboardDay = () => {
 
 
             {/* Header with Back Button and Actions */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            {/* Header with Back Button and Actions */}
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2rem' }}>
+                <div style={{ position: 'absolute', left: 0, display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <button
                         onClick={() => navigate('/dashboard')}
                         className="btn-outline"
-                        style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '5px' }}
+                        style={{
+                            width: 'auto',
+                            padding: '4px 8px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            fontSize: '0.8rem',
+                            border: '1px solid var(--text-muted)',
+                            color: 'var(--text-muted)'
+                        }}
                     >
                         ← Back
                     </button>
-                    <h2 style={{ margin: 0 }}>{format(dateObj, 'MMMM do, yyyy')}</h2>
                 </div>
+                <h2 style={{ margin: 0, textAlign: 'center' }}>{format(dateObj, 'MMMM do, yyyy')}</h2>
 
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div style={{ position: 'absolute', right: 0, display: 'flex', gap: '0.5rem' }}>
                     <button
                         onClick={copyPlan}
                         className="btn-outline"
