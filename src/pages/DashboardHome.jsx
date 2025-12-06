@@ -14,6 +14,7 @@ const DashboardHome = () => {
     const [showDonation, setShowDonation] = useState(false);
     const [showFeedback, setShowFeedback] = useState(false);
     const [showProfileMenu, setShowProfileMenu] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(new Date());
 
     const handleRemoveAvatar = () => {
         updateAvatar(null);
@@ -130,6 +131,7 @@ const DashboardHome = () => {
     };
 
     const handleDateSelect = (date) => {
+        setSelectedDate(date);
         const dateStr = format(date, 'yyyy-MM-dd');
         navigate(`/dashboard/${dateStr}`);
     };
@@ -268,7 +270,7 @@ const DashboardHome = () => {
                     </div>
                 </div>
                 <Calendar
-                    selectedDate={new Date()}
+                    selectedDate={selectedDate}
                     onDateSelect={handleDateSelect}
                     gymHistory={history}
                 />

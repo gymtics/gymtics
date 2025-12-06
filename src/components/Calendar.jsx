@@ -118,4 +118,4 @@ const Calendar = ({ selectedDate, onDateSelect, gymHistory = {} }) => {
     );
 };
 
-export default Calendar;
+export default React.memo(Calendar);
