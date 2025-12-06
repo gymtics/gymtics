@@ -461,24 +461,25 @@ app.post('/api/data/prs', async (req, res) => {
 });
 
 // Save Feedback
-const { userId, type, message, rating } = req.body;
-try {
-    // 1. Save to DB (Backup)
-    const feedback = await Feedback.create({ userId, type, message, rating });
-    console.log(`[Feedback] New ${type} from User ${userId}`);
+app.post('/api/feedback', async (req, res) => {
+    const { userId, type, message, rating } = req.body;
+    try {
+        // 1. Save to DB (Backup)
+        const feedback = await Feedback.create({ userId, type, message, rating });
+        console.log(`[Feedback] New ${type} from User ${userId}`);
 
-    // 2. Send Email Notification
-    const user = await User.findByPk(userId);
-    const emailUser = process.env.SMTP_USER || process.env.EMAIL_USER;
-    const emailPass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
+        // 2. Send Email Notification
+        const user = await User.findByPk(userId);
+        const emailUser = process.env.SMTP_USER || process.env.EMAIL_USER;
+        const emailPass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
 
-    if (emailUser && emailPass) {
-        try {
-            await transporter.sendMail({
-                from: process.env.EMAIL_FROM || emailUser,
-                to: 'gymtics0@gmail.com', // Target email
-                subject: `New Feedback: ${type.toUpperCase()} from ${user ? user.username : 'Unknown'}`,
-                text: `
+        if (emailUser && emailPass) {
+            try {
+                await transporter.sendMail({
+                    from: process.env.EMAIL_FROM || emailUser,
+                    to: 'gymtics0@gmail.com', // Target email
+                    subject: `New Feedback: ${type.toUpperCase()} from ${user ? user.username : 'Unknown'}`,
+                    text: `
 New Feedback Received!
 
 Type: ${type}
@@ -488,19 +489,19 @@ Rating: ${rating}/5
 Message:
 ${message}
                     `
-            });
-            console.log('[Feedback] Email notification sent to gymtics0@gmail.com');
-        } catch (emailErr) {
-            console.error('[Feedback] Failed to send email:', emailErr);
-            // Don't fail the request if email fails, just log it
+                });
+                console.log('[Feedback] Email notification sent to gymtics0@gmail.com');
+            } catch (emailErr) {
+                console.error('[Feedback] Failed to send email:', emailErr);
+                // Don't fail the request if email fails, just log it
+            }
         }
-    }
 
-    res.json({ success: true, feedback });
-} catch (err) {
-    console.error('Feedback Error:', err);
-    res.status(500).json({ error: 'Failed to save feedback' });
-}
+        res.json({ success: true, feedback });
+    } catch (err) {
+        console.error('Feedback Error:', err);
+        res.status(500).json({ error: 'Failed to save feedback' });
+    }
 });
 
 // Get All Feedback (Admin)
