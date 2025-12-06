@@ -87,7 +87,9 @@ if (cluster.isMaster) {
 
     // Email Transporter
     const transporter = nodemailer.createTransport({
-        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true, // true for 465, false for other ports
         auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASS
@@ -97,8 +99,16 @@ if (cluster.isMaster) {
     // Verify Email Configuration on Startup
     if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
         console.log(`[Email] Configured with user: ${process.env.EMAIL_USER}`);
+        // Verify connection configuration
+        transporter.verify(function (error, success) {
+            if (error) {
+                console.error('[Email] Connection verification failed:', error);
+            } else {
+                console.log('[Email] Server is ready to take our messages');
+            }
+        });
     } else {
-        console.warn('[Email] Missing EMAIL_USER or EMAIL_PASS environment variables');
+        console.warn('[Email] Missing EMAIL_USER or EMAIL_PASS environment variables. Emails will NOT be sent.');
     }
 
     // Twilio Client
@@ -149,9 +159,10 @@ if (cluster.isMaster) {
                             subject: 'Your Gym App Verification Code',
                             text: `Your verification code is: ${code}`
                         });
-                        console.log(`[Email] Sent to ${identifier}`);
+                        console.log(`[Email] Sent to ${identifier}. MessageID: ${info.messageId}`);
                     } catch (emailErr) {
-                        console.error('[Email] Failed to send:', emailErr);
+                        console.error('[Email] Failed to send to:', identifier);
+                        console.error('[Email] Error details:', emailErr);
                         // Continue even if email fails, so user can maybe see OTP in logs or try again
                     }
                 } else {
