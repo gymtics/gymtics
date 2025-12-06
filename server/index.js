@@ -63,13 +63,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 
 // Database Connection & Sync
-sequelize.authenticate()
-    .then(() => {
-        console.log('✅ SQLite Database Connected');
-        return sequelize.sync({ alter: true }); // Sync models with DB (Alter to update schema)
-    })
-    .then(() => console.log('✅ Models Synced'))
-    .catch(err => console.error('❌ Database Error:', err));
+// Database connection is handled at startup below
 
 // In-memory storage for OTPs REMOVED
 // const otps = {}; // { emailOrPhone: { code, expires } }
