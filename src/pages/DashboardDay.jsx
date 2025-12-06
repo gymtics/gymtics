@@ -298,72 +298,73 @@ const DashboardDay = () => {
                 {/* Workout Log */}
                 <div className="glass-panel animate-slide-up" style={{ padding: '2rem', animationDelay: '0.1s' }}>
                     <h3 style={{ marginBottom: '1.5rem', color: 'var(--secondary)' }}>Workout Log</h3>
-                    <form onSubmit={addWorkout} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap', position: 'relative' }}>
-                        <select
-                            value={categoryInput}
-                            onChange={(e) => setCategoryInput(e.target.value)}
-                            style={{
-                                background: 'rgba(255,255,255,0.05)',
-                                border: '1px solid var(--glass-border)',
-                                color: 'white',
-                                padding: '12px',
-                                borderRadius: 'var(--radius-sm)',
-                                outline: 'none',
-                                minWidth: '100px'
-                            }}
-                        >
-                            {getCategories().map(cat => (
-                                <option key={cat}>{cat}</option>
-                            ))}
-                        </select>
-                        <div style={{ flex: 2, minWidth: '150px', position: 'relative' }}>
-                            <input
-                                type="text"
-                                placeholder="Exercise (e.g. Bench Press)"
-                                value={workoutInput}
-                                onChange={(e) => setWorkoutInput(e.target.value)}
-                                onFocus={() => workoutInput.length > 1 && setShowSuggestions(true)}
-                                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)} // Delay to allow click
-                                style={{ width: '100%' }}
-                            />
-                            {showSuggestions && filteredExercises.length > 0 && (
-                                <div style={{
-                                    position: 'absolute',
-                                    top: '100%',
-                                    left: 0,
-                                    right: 0,
-                                    background: 'var(--bg-dark)',
+                    <form onSubmit={addWorkout} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem', position: 'relative' }}>
+                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                            <select
+                                value={categoryInput}
+                                onChange={(e) => setCategoryInput(e.target.value)}
+                                style={{
+                                    background: 'rgba(255,255,255,0.05)',
                                     border: '1px solid var(--glass-border)',
+                                    color: 'white',
+                                    padding: '12px',
                                     borderRadius: 'var(--radius-sm)',
-                                    maxHeight: '200px',
-                                    overflowY: 'auto',
-                                    zIndex: 10
-                                }}>
-                                    {filteredExercises.map((ex, idx) => (
-                                        <div
-                                            key={idx}
-                                            onClick={() => {
-                                                setWorkoutInput(ex.name);
-                                                setCategoryInput(ex.category);
-                                                setShowSuggestions(false);
-                                            }}
-                                            style={{
-                                                padding: '10px',
-                                                cursor: 'pointer',
-                                                borderBottom: '1px solid rgba(255,255,255,0.05)',
-                                                display: 'flex',
-                                                justifyContent: 'space-between'
-                                            }}
-                                            className="hover-bg"
-                                        >
-                                            <span>{ex.name}</span>
-                                            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{ex.category}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
+                                    outline: 'none',
+                                    minWidth: '100px'
+                                }}
+                            >
+                                {getCategories().map(cat => (
+                                    <option key={cat}>{cat}</option>
+                                ))}
+                            </select>
+                            <div style={{ flex: 2, minWidth: '150px', position: 'relative' }}>
+                                <input
+                                    type="text"
+                                    placeholder="Exercise (e.g. Bench Press)"
+                                    value={workoutInput}
+                                    onChange={(e) => setWorkoutInput(e.target.value)}
+                                    onFocus={() => workoutInput.length > 1 && setShowSuggestions(true)}
+                                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)} // Delay to allow click
+                                    style={{ width: '100%' }}
+                                />
+                                {showSuggestions && filteredExercises.length > 0 && (
+                                    <div style={{
+                                        position: 'absolute',
+                                        top: '100%',
+                                        left: 0,
+                                        right: 0,
+                                        background: 'var(--bg-dark)',
+                                        border: '1px solid var(--glass-border)',
+                                        borderRadius: 'var(--radius-sm)',
+                                        maxHeight: '200px',
+                                        overflowY: 'auto',
+                                        zIndex: 10
+                                    }}>
+                                        {filteredExercises.map((ex, idx) => (
+                                            <div
+                                                key={idx}
+                                                onClick={() => {
+                                                    setWorkoutInput(ex.name);
+                                                    setCategoryInput(ex.category);
+                                                    setShowSuggestions(false);
+                                                }}
+                                                style={{
+                                                    padding: '10px',
+                                                    cursor: 'pointer',
+                                                    borderBottom: '1px solid rgba(255,255,255,0.05)',
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between'
+                                                }}
+                                                className="hover-bg"
+                                            >
+                                                <span>{ex.name}</span>
+                                                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{ex.category}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
-
 
                         {/* Sets Builder */}
                         <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -392,7 +393,7 @@ const DashboardDay = () => {
                             <button type="button" onClick={addSetRow} style={{ alignSelf: 'flex-start', fontSize: '0.8rem', color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer' }}>+ Add Set</button>
                         </div>
 
-                        <button type="submit" className="btn-primary" style={{ padding: '0 1.5rem', width: '100%' }}>Add Workout</button>
+                        <button type="submit" className="btn-primary" style={{ width: '100%' }}>Add Workout</button>
                     </form>
                     <ul style={{ listStyle: 'none' }}>
                         {workouts.map(item => (
