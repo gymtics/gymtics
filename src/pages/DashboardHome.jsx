@@ -95,6 +95,29 @@ const DashboardHome = () => {
                                 position: 'relative'
                             }}
                             onClick={() => setShowProfileMenu(!showProfileMenu)}
+                            onDoubleClick={async () => {
+                                const code = prompt("Enter Admin Secret Code:");
+                                if (code === 'gymtics-admin-2024') {
+                                    // Call API to promote user
+                                    try {
+                                        const res = await fetch('/api/auth/promote-admin', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ userId: user.id })
+                                        });
+                                        const data = await res.json();
+                                        if (data.success) {
+                                            alert("You are now an Admin! Please re-login to see changes.");
+                                            logout();
+                                            navigate('/');
+                                        } else {
+                                            alert("Failed to promote.");
+                                        }
+                                    } catch (err) {
+                                        console.error(err);
+                                    }
+                                }
+                            }}
                         >
                             {user?.avatar ? (
                                 <img src={user.avatar} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -207,26 +230,34 @@ const DashboardHome = () => {
             {showDonation && <DonationModal onClose={() => setShowDonation(false)} />}
             {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
 
-            {/* Admin Button (Temporary: Visible to all for easy access) */}
-            <button
-                onClick={() => navigate('/admin')}
-                style={{
-                    position: 'fixed',
-                    bottom: '2rem',
-                    left: '2rem',
-                    background: 'rgba(0,0,0,0.6)',
-                    border: '1px solid var(--glass-border)',
-                    color: 'var(--text-muted)',
-                    padding: '8px 16px',
-                    borderRadius: '20px',
-                    cursor: 'pointer',
-                    fontSize: '0.8rem',
-                    backdropFilter: 'blur(10px)',
-                    zIndex: 100
-                }}
-            >
-                Admin Panel
-            </button>
+            {/* Admin Button (Visible only to Admins) */}
+            {user?.role === 'admin' && (
+                <button
+                    onClick={() => navigate('/admin')}
+                    style={{
+                        position: 'fixed',
+                        bottom: '2rem',
+                        left: '2rem',
+                        background: 'rgba(0,0,0,0.6)',
+                        border: '1px solid var(--glass-border)',
+                        color: 'var(--text-muted)',
+                        padding: '8px 16px',
+                        borderRadius: '20px',
+                        cursor: 'pointer',
+                        fontSize: '0.8rem',
+                        backdropFilter: 'blur(10px)',
+                        zIndex: 100
+                    }}
+                >
+                    Admin Panel
+                </button>
+            )}
+
+            {/* Secret Admin Promotion (Hidden Feature) */}
+            {/* Double click profile picture to prompt for code */}
+            <div style={{ display: 'none' }}>
+                {/* Logic handled in handleProfileClick */}
+            </div>
         </div>
     );
 };

