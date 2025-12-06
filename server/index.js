@@ -75,15 +75,18 @@ sequelize.authenticate()
 // const otps = {}; // { emailOrPhone: { code, expires } }
 
 // Email Transporter
+// Email Transporter
 const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // true for 465, false for other ports
-    requireTLS: true,
+    service: 'gmail',
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
     },
+    tls: {
+        rejectUnauthorized: false // Help with self-signed certs if any (though Gmail uses valid ones)
+    },
+    // Force IPv4 to avoid IPv6 timeouts on some cloud providers
+    family: 4,
     connectionTimeout: 10000, // 10 seconds
     socketTimeout: 10000 // 10 seconds
 });
