@@ -276,7 +276,7 @@ const Dashboard = () => {
                                     style={{ flex: 1, minWidth: '60px' }}
                                 />
                             </div>
-                            <button type="submit" className="btn-primary">Add Workout</button>
+                            <button type="submit" className="btn-primary" style={{ width: '100%' }}>Add Workout</button>
                         </form>
                         <ul style={{ listStyle: 'none' }}>
                             {currentData.workouts.map(item => (
@@ -396,7 +396,7 @@ const Dashboard = () => {
                                     <option value="cups">cups</option>
                                 </select>
                             </div>
-                            <button type="submit" className="btn-primary">Add Meal</button>
+                            <button type="submit" className="btn-primary" style={{ width: '100%' }}>Add Meal</button>
                         </form>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                             {currentData.meals.map(item => (
