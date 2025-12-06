@@ -4,7 +4,19 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const isProduction = process.env.NODE_ENV === 'production';
-const databaseUrl = process.env.DATABASE_URL;
+const databaseUrl = process.env.DATABASE_URL ? process.env.DATABASE_URL.trim() : null;
+
+if (databaseUrl) {
+    console.log(`[Database] Using DATABASE_URL: ${databaseUrl.substring(0, 15)}...`);
+    if (!databaseUrl.startsWith('postgres://') && !databaseUrl.startsWith('postgresql://')) {
+        console.error('[Database] ERROR: DATABASE_URL must start with postgres:// or postgresql://');
+        console.error('[Database] Received:', databaseUrl);
+        // Fallback or exit? Better to exit if they intended to use PG.
+        // But for now let's let Sequelize try, but at least we logged it.
+    }
+} else {
+    console.log('[Database] No DATABASE_URL found, using SQLite.');
+}
 
 const sequelize = databaseUrl
     ? new Sequelize(databaseUrl, {
