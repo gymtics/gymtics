@@ -256,8 +256,9 @@ app.post('/api/auth/reset-password', async (req, res) => {
         console.log(`[Auth] Password reset for: ${email}`);
         res.json({ success: true, message: 'Password reset successfully' });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Server error' });
+        console.error('[Auth] Reset Password Error:', err.message);
+        console.error(err.stack);
+        res.status(500).json({ error: 'Server error: ' + err.message });
     }
 });
 
