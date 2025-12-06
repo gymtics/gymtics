@@ -219,43 +219,65 @@ const DashboardDay = () => {
 
             {/* Header with Back Button and Actions */}
             {/* Header with Back Button and Actions */}
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2rem' }}>
-                <div style={{ position: 'absolute', left: 0, display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <button
-                        onClick={() => navigate('/dashboard')}
-                        className="btn-outline"
-                        style={{
-                            width: 'auto',
-                            padding: '4px 8px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px',
-                            fontSize: '0.8rem',
-                            border: '1px solid var(--text-muted)',
-                            color: 'var(--text-muted)'
-                        }}
-                    >
-                        ← Back
-                    </button>
-                </div>
-                <h2 style={{ margin: 0, textAlign: 'center' }}>{format(dateObj, 'MMMM do, yyyy')}</h2>
+            {/* Header with Back Button and Actions */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
 
-                <div style={{ position: 'absolute', right: 0, display: 'flex', gap: '0.5rem' }}>
+                {/* Top Row: Back Button and Date */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', width: '100%' }}>
+                    <div style={{ position: 'absolute', left: 0 }}>
+                        <button
+                            onClick={() => navigate('/dashboard')}
+                            className="btn-outline"
+                            style={{
+                                width: 'auto',
+                                padding: '4px 8px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                fontSize: '0.8rem',
+                                border: '1px solid var(--text-muted)',
+                                color: 'var(--text-muted)'
+                            }}
+                        >
+                            ← Back
+                        </button>
+                    </div>
+                    <h2 style={{ margin: 0, textAlign: 'center', fontSize: '1.5rem' }}>{format(dateObj, 'MMMM do, yyyy')}</h2>
+                </div>
+
+                {/* Action Buttons (Centered below date for clean look) */}
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
                     <button
                         onClick={copyPlan}
                         className="btn-outline"
-                        style={{ fontSize: '0.9rem', padding: '8px 12px' }}
+                        style={{
+                            fontSize: '0.85rem',
+                            padding: '6px 12px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            borderColor: 'var(--text-muted)',
+                            color: 'var(--text-muted)'
+                        }}
                         title="Copy today's plan"
                     >
-                        📋 Copy
+                        <span>📋</span> Copy Plan
                     </button>
                     <button
                         onClick={pastePlan}
-                        className="btn-primary"
-                        style={{ fontSize: '0.9rem', padding: '8px 12px', cursor: 'pointer' }}
+                        className="btn-outline"
+                        style={{
+                            fontSize: '0.85rem',
+                            padding: '6px 12px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            borderColor: 'var(--primary)',
+                            color: 'var(--primary)'
+                        }}
                         title="Paste plan from clipboard"
                     >
-                        📋 Paste
+                        <span>📋</span> Paste Plan
                     </button>
                 </div>
             </div>
