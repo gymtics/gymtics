@@ -22,7 +22,24 @@ export const foodData = {
 };
 
 export const calculateCalories = (foodName, quantity, unit) => {
-    const food = foodData[foodName];
+    if (!foodName) return 0;
+    const normalizedInput = foodName.toLowerCase().trim();
+
+    // 1. Try exact match
+    let food = foodData[foodName];
+
+    // 2. Try case-insensitive match
+    if (!food) {
+        const key = Object.keys(foodData).find(k => k.toLowerCase() === normalizedInput);
+        if (key) food = foodData[key];
+    }
+
+    // 3. Try partial match (e.g. "chicken" -> "Chicken Breast")
+    if (!food) {
+        const key = Object.keys(foodData).find(k => k.toLowerCase().includes(normalizedInput));
+        if (key) food = foodData[key];
+    }
+
     if (!food) return 0;
 
     // Simple normalization: if unit matches, just multiply.
@@ -34,4 +51,5 @@ export const calculateCalories = (foodName, quantity, unit) => {
     } else {
         return Math.round(food.calories * quantity);
     }
+    return 0;
 };

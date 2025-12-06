@@ -506,6 +506,7 @@ app.post('/api/feedback', async (req, res) => {
         const emailUser = process.env.SMTP_USER || process.env.EMAIL_USER;
         const emailPass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
 
+        let emailSent = false;
         if (emailUser && emailPass) {
             try {
                 await transporter.sendMail({
@@ -524,11 +525,16 @@ ${message}
                     `
                 });
                 console.log('[Feedback] Email notification sent to gymtics0@gmail.com');
+                emailSent = true;
             } catch (emailErr) {
                 console.error('[Feedback] Failed to send email:', emailErr);
                 // Don't fail the request if email fails, just log it
             }
+        } else {
+            console.warn('[Feedback] Email skipped: SMTP_USER or SMTP_PASS not set.');
         }
+
+        res.json({ success: true, feedback, emailSent });
 
         res.json({ success: true, feedback });
     } catch (err) {

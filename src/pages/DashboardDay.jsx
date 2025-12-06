@@ -6,6 +6,7 @@ import { format, parseISO } from 'date-fns';
 
 import { exerciseLibrary, getCategories } from '../utils/exercises';
 import { foodData, calculateCalories } from '../utils/foodData';
+import { useToast } from '../components/ToastProvider';
 
 const DashboardDay = () => {
     const { date } = useParams();
@@ -13,6 +14,7 @@ const DashboardDay = () => {
     const auth = useAuth();
     const user = auth?.user;
     const context = useData();
+    const toast = useToast();
 
     if (!auth) {
         return <div style={{ color: 'white', padding: '2rem' }}>Error: Auth Context missing.</div>;
@@ -160,6 +162,7 @@ const DashboardDay = () => {
             meals: meals || []
         };
         setClipboard(dataToCopy);
+        toast.success("Plan copied successfully!");
     };
 
     const pastePlan = () => {
@@ -167,6 +170,7 @@ const DashboardDay = () => {
             const storedClipboard = clipboard || JSON.parse(window.localStorage.getItem('gym_app_clipboard'));
 
             if (!storedClipboard || !storedClipboard.workouts) {
+                toast.error("Clipboard is empty!");
                 return;
             }
 
@@ -187,8 +191,10 @@ const DashboardDay = () => {
                 workouts: [...workouts, ...newWorkouts],
                 meals: [...meals, ...newMeals]
             });
+            toast.success("Plan pasted successfully!");
         } catch (err) {
             console.error("Paste failed:", err);
+            toast.error("Failed to paste plan.");
         }
     };
 
