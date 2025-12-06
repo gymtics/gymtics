@@ -60,7 +60,15 @@ const DashboardHome = () => {
                     ctx.drawImage(img, 0, 0, width, height);
                     resolve(canvas.toDataURL('image/jpeg', 0.7)); // Compress to JPEG 70%
                 };
+                img.onerror = () => {
+                    alert("Error: Failed to load image data.");
+                    resolve(null);
+                };
                 img.src = e.target.result;
+            };
+            reader.onerror = () => {
+                alert("Error: Failed to read file.");
+                resolve(null);
             };
             reader.readAsDataURL(file);
         });
@@ -70,11 +78,15 @@ const DashboardHome = () => {
         const file = e.target.files[0];
         if (!file) return;
 
+        // Debug Alert 1
+        alert(`Selected: ${file.name} (${file.type || 'Unknown Type'})`);
+
         let fileToProcess = file;
 
         // Check for HEIC/HEIF
         if (file.type === 'image/heic' || file.type === 'image/heif' || file.name.toLowerCase().endsWith('.heic')) {
             try {
+                alert("Converting HEIC image...");
                 const heic2any = (await import('heic2any')).default;
                 const convertedBlob = await heic2any({
                     blob: file,
@@ -83,19 +95,28 @@ const DashboardHome = () => {
                 });
                 // Handle array return (if multiple images in HEIC)
                 fileToProcess = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+                alert("HEIC conversion successful!");
             } catch (err) {
                 console.error("HEIC conversion failed:", err);
-                alert("Failed to process HEIC image. Please try a JPEG or PNG.");
+                alert("Failed to process HEIC image: " + err.message);
                 return;
             }
         }
 
         try {
+            alert("Resizing image...");
             const resizedImage = await resizeImage(fileToProcess);
+
+            if (!resizedImage) {
+                alert("Resize failed (returned null).");
+                return;
+            }
+
+            alert("Uploading...");
             updateAvatar(resizedImage);
         } catch (err) {
             console.error("Image processing failed:", err);
-            alert("Failed to process image.");
+            alert("Failed to process image: " + err.message);
         }
     };
 
