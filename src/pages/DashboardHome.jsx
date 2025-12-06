@@ -30,6 +30,42 @@ const DashboardHome = () => {
         navigate('/');
     };
 
+    const resizeImage = (file) => {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const MAX_WIDTH = 800;
+                    const MAX_HEIGHT = 800;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    resolve(canvas.toDataURL('image/jpeg', 0.7)); // Compress to JPEG 70%
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    };
+
     const handleAvatarUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -45,7 +81,8 @@ const DashboardHome = () => {
                     toType: 'image/jpeg',
                     quality: 0.8
                 });
-                fileToProcess = convertedBlob;
+                // Handle array return (if multiple images in HEIC)
+                fileToProcess = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
             } catch (err) {
                 console.error("HEIC conversion failed:", err);
                 alert("Failed to process HEIC image. Please try a JPEG or PNG.");
@@ -53,11 +90,13 @@ const DashboardHome = () => {
             }
         }
 
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            updateAvatar(reader.result);
-        };
-        reader.readAsDataURL(fileToProcess);
+        try {
+            const resizedImage = await resizeImage(fileToProcess);
+            updateAvatar(resizedImage);
+        } catch (err) {
+            console.error("Image processing failed:", err);
+            alert("Failed to process image.");
+        }
     };
 
     const handleDateSelect = (date) => {
