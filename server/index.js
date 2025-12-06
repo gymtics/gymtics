@@ -137,11 +137,13 @@ app.post('/api/auth/send-otp', async (req, res) => {
             return res.status(500).json({ error: 'Failed to generate OTP' });
         }
 
-        console.log(`[OTP] Generated for ${identifier}: ${code}`);
+        console.log(`[OTP] Generated for ${identifier}: ${code}. Method: ${method}`);
 
         if (method === 'email') {
+            console.log('[Email] Attempting to send email...');
             if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
                 try {
+                    console.log(`[Email] Using credentials: ${process.env.EMAIL_USER}`);
                     const info = await transporter.sendMail({
                         from: process.env.EMAIL_USER,
                         to: identifier,
