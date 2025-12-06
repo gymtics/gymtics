@@ -156,7 +156,7 @@ const DashboardHome = () => {
                             type="file"
                             ref={fileInputRef}
                             style={{ display: 'none' }}
-                            accept="image/*"
+                            accept="image/*, .heic, .heif"
                             onChange={handleAvatarUpload}
                         />
                     </div>
