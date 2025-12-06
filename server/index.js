@@ -78,25 +78,28 @@ sequelize.authenticate()
 // Email Transporter
 // Email Transporter
 // Email Transporter
+// Email Transporter
 const transporter = nodemailer.createTransport({
-    host: 'smtp.googlemail.com', // Alternative host
-    port: 465,
-    secure: true, // true for 465, false for other ports
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.SMTP_PORT || '465'),
+    secure: process.env.SMTP_SECURE === 'true' || process.env.SMTP_PORT === '465', // true for 465, false for other ports
     auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
+        user: process.env.SMTP_USER || process.env.EMAIL_USER,
+        pass: process.env.SMTP_PASS || process.env.EMAIL_PASS
     },
-    // Force IPv4 to avoid IPv6 timeouts
-    family: 4,
-    connectionTimeout: 10000, // 10 seconds
-    socketTimeout: 10000, // 10 seconds
+    // General timeouts
+    connectionTimeout: 10000,
+    socketTimeout: 10000,
     debug: true,
     logger: true
 });
 
 // Verify Email Configuration on Startup
-if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-    console.log(`[Email] Configured with user: ${process.env.EMAIL_USER}`);
+const emailUser = process.env.SMTP_USER || process.env.EMAIL_USER;
+const emailPass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
+
+if (emailUser && emailPass) {
+    console.log(`[Email] Configured with user: ${emailUser}`);
     // Verify connection configuration
     transporter.verify(function (error, success) {
         if (error) {
@@ -106,7 +109,7 @@ if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
         }
     });
 } else {
-    console.warn('[Email] Missing EMAIL_USER or EMAIL_PASS environment variables. Emails will NOT be sent.');
+    console.warn('[Email] Missing SMTP/EMAIL credentials. Emails will NOT be sent.');
 }
 
 // Twilio Client
@@ -150,11 +153,14 @@ app.post('/api/auth/send-otp', async (req, res) => {
 
         if (method === 'email') {
             console.log('[Email] Attempting to send email...');
-            if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+            const emailUser = process.env.SMTP_USER || process.env.EMAIL_USER;
+            const emailPass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
+
+            if (emailUser && emailPass) {
                 try {
-                    console.log(`[Email] Using credentials: ${process.env.EMAIL_USER}`);
+                    console.log(`[Email] Using credentials: ${emailUser}`);
                     const info = await transporter.sendMail({
-                        from: process.env.EMAIL_USER,
+                        from: process.env.EMAIL_FROM || emailUser,
                         to: identifier,
                         subject: 'Your Gym App Verification Code',
                         text: `Your verification code is: ${code}`
@@ -167,8 +173,7 @@ app.post('/api/auth/send-otp', async (req, res) => {
                 }
             } else {
                 console.warn(`[Email] Mock sent to ${identifier} (Missing credentials)`);
-                if (!process.env.EMAIL_USER) console.error('Missing EMAIL_USER env var');
-                if (!process.env.EMAIL_PASS) console.error('Missing EMAIL_PASS env var');
+                console.error('Missing SMTP_USER/EMAIL_USER or SMTP_PASS/EMAIL_PASS env vars');
             }
         } else if (method === 'sms') {
             if (twilioClient && process.env.TWILIO_PHONE) {
