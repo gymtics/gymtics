@@ -66,13 +66,21 @@ export const AuthProvider = ({ children }) => {
 
     if (user?.id) {
       try {
-        await fetch(`${API_URL}/auth/update-avatar`, {
+        console.log("Sending avatar update to server...");
+        const res = await fetch(`${API_URL}/auth/update-avatar`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: user.id, avatar: avatarUrl })
         });
+        const data = await res.json();
+        console.log("Avatar update response:", data);
+        if (!data.success) {
+          console.error("Server failed to update avatar:", data.error);
+          alert("Failed to save avatar: " + data.error);
+        }
       } catch (err) {
         console.error("Failed to persist avatar:", err);
+        alert("Network error saving avatar.");
       }
     }
   };

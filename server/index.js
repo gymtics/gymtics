@@ -313,15 +313,24 @@ app.post('/api/auth/login', async (req, res) => {
 // API: Update Avatar
 app.post('/api/auth/update-avatar', async (req, res) => {
     const { userId, avatar } = req.body;
+    console.log(`[Avatar Update] Request for User ${userId}`);
+    console.log(`[Avatar Update] Payload size: ${JSON.stringify(req.body).length} bytes`);
+
     try {
         const user = await User.findByPk(userId);
-        if (!user) return res.status(404).json({ error: 'User not found' });
+        if (!user) {
+            console.error(`[Avatar Update] User ${userId} not found`);
+            return res.status(404).json({ error: 'User not found' });
+        }
 
+        console.log(`[Avatar Update] Updating avatar for ${user.username}...`);
         await user.update({ avatar });
+        console.log(`[Avatar Update] Success!`);
+
         res.json({ success: true, user: { ...user.toJSON(), password: undefined } });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Failed to update avatar' });
+        console.error('[Avatar Update] Error:', err);
+        res.status(500).json({ error: 'Failed to update avatar: ' + err.message });
     }
 });
 
