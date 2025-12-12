@@ -169,11 +169,15 @@ const AuthPages = () => {
             backgroundRepeat: 'no-repeat'
         }}>
             <div className="glass-panel animate-fade-in auth-card">
-                <h1 style={{ textAlign: 'center', marginBottom: '0.5rem', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '1.5rem' }}>
-                    YOU AND YOUR GOALS
-                </h1>
                 <h2 style={{ textAlign: 'center', marginBottom: '2rem', fontSize: '1.2rem', color: 'var(--text-muted)' }}>
-                    {isLogin ? 'BACK TO YOU AND YOUR GOALS' :
+                    {isLogin ? (
+                        <>
+                            BACK TO <br />
+                            <span style={{ fontSize: '1.5rem', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 'bold' }}>
+                                YOU AND YOUR GOALS
+                            </span>
+                        </>
+                    ) :
                         isForgot ? 'Reset Password' :
                             regStep === 'details' ? 'Join the Club' :
                                 regStep === 'method' ? 'Verify Identity' : 'Enter Code'}
