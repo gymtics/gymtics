@@ -99,34 +99,52 @@ const emailPass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
 
 if (emailUser && emailPass) {
     console.log(`[Email] Configured with user: ${emailUser}`);
+    console.log(`[Email] Transport Host: ${process.env.SMTP_HOST || 'smtp.gmail.com'}`);
+    console.log(`[Email] Transport Port: ${process.env.SMTP_PORT || '465'}`);
+
     // Verify connection configuration
     transporter.verify(function (error, success) {
         if (error) {
             console.error('[Email] Connection verification failed:', error);
+            console.error('[Email] Error Code:', error.code);
+            console.error('[Email] Error Response:', error.response);
         } else {
             console.log('[Email] Server is ready to take our messages');
         }
     });
 } else {
     console.warn('[Email] SMTP credentials missing. Email features will be disabled.');
+    console.warn(`[Email] User present: ${!!emailUser}, Pass present: ${!!emailPass}`);
 }
 
+// Debug Email Route
 // Debug Email Route
 app.get('/api/debug/email', async (req, res) => {
     try {
         const emailUser = process.env.SMTP_USER || process.env.EMAIL_USER;
-        if (!emailUser) return res.status(400).json({ error: 'No email credentials' });
+        const emailPass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
+
+        const debugInfo = {
+            userConfigured: !!emailUser,
+            passConfigured: !!emailPass,
+            userLength: emailUser ? emailUser.length : 0,
+            passLength: emailPass ? emailPass.length : 0,
+            host: process.env.SMTP_HOST || 'default(smtp.gmail.com)',
+            port: process.env.SMTP_PORT || 'default(465)'
+        };
+
+        if (!emailUser) return res.status(400).json({ error: 'No email credentials (User missing)', debugInfo });
 
         await transporter.sendMail({
             from: process.env.EMAIL_FROM || emailUser,
             to: 'gymtics0@gmail.com',
-            subject: 'Test Email from Gymtics',
-            text: 'This is a test email to verify SMTP configuration.'
+            subject: 'Test Email from Gymtics (Debug)',
+            text: `This is a test email to verify SMTP configuration.\n\nDebug Info:\n${JSON.stringify(debugInfo, null, 2)}`
         });
-        res.json({ success: true, message: 'Test email sent' });
+        res.json({ success: true, message: 'Test email sent', debugInfo });
     } catch (err) {
         console.error('Test Email Failed:', err);
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: err.message, stack: err.stack, code: err.code, response: err.response });
     }
 });
 
