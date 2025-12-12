@@ -13,9 +13,20 @@ const WelcomePage = () => {
         }}>
             <div className="container" style={{ textAlign: 'center', zIndex: 2 }}>
                 <img src="/logo.png" alt="Gymtics Logo" className="animate-fade-in" style={{ width: '120px', height: '120px', marginBottom: '1rem', borderRadius: '50%', border: '2px solid var(--primary)' }} />
-                <h1 className="animate-slide-up" style={{ marginBottom: '1rem' }}>
-                    Welcome to <span className="text-gradient">Gymtics</span>
+                <h1 className="animate-slide-up" style={{ marginBottom: '0.5rem' }}>
+                    WELCOME TO <span className="text-gradient">GYMTICS</span>
                 </h1>
+                <h2 className="animate-slide-up" style={{
+                    fontSize: '1.2rem',
+                    fontWeight: 'bold',
+                    color: 'var(--primary)',
+                    marginBottom: '2rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '2px',
+                    animationDelay: '0.1s'
+                }}>
+                    YOU AND YOUR GOALS
+                </h2>
                 <p className="animate-slide-up" style={{
                     fontSize: '1.25rem',
                     color: 'var(--text-muted)',
