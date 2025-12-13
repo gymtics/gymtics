@@ -36,13 +36,48 @@ const WelcomePage = () => {
                     Track your workouts, nutrition, and daily goals in one premium space.
                 </p>
 
-                <div className="animate-slide-up" style={{ animationDelay: '0.4s' }}>
+                <div className="animate-slide-up" style={{ animationDelay: '0.4s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
                     <button
                         className="btn-primary"
                         onClick={() => navigate('/auth')}
                         style={{ padding: '16px 48px', fontSize: '1.2rem' }}
                     >
                         Get Started
+                    </button>
+
+                    <a
+                        href="/gymtics.apk"
+                        download
+                        className="btn-outline"
+                        style={{
+                            textDecoration: 'none',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            padding: '12px 24px',
+                            color: 'var(--text-muted)',
+                            borderColor: 'var(--glass-border)'
+                        }}
+                    >
+                        <span style={{ fontSize: '1.2rem' }}>📱</span> Download for Android
+                    </a>
+
+                    <button
+                        className="btn-outline"
+                        onClick={() => alert("The iOS version is coming soon to the App Store!")}
+                        style={{
+                            textDecoration: 'none',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            padding: '12px 24px',
+                            color: 'var(--text-muted)',
+                            borderColor: 'var(--glass-border)',
+                            background: 'transparent',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        <span style={{ fontSize: '1.2rem' }}>🍎</span> Download for iOS
                     </button>
                 </div>
             </div>
