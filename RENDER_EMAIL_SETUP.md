@@ -39,6 +39,7 @@ Add these variables in Render:
 | `SMTP_SECURE` | `true` |
 | `EMAIL_USER` | *Your Gmail Address* |
 | `EMAIL_PASS` | *Your 16-char App Password* |
+| `ADMIN_EMAIL` | *Email address to receive feedback (e.g. your personal email)* |
 
 ## Verification
 1.  Save changes in Render and wait for redeployment.

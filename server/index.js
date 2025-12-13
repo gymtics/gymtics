@@ -554,7 +554,8 @@ app.post('/api/feedback', async (req, res) => {
             try {
                 // Ensure from address is valid
                 const fromAddress = process.env.EMAIL_FROM || emailUser;
-                const toAddress = 'gymtics0@gmail.com';
+                // Use ADMIN_EMAIL if set, otherwise fallback to known admin or sender
+                const toAddress = process.env.ADMIN_EMAIL || 'gymtics0@gmail.com';
 
                 console.log(`[Feedback] Attempting to send email from ${fromAddress} to ${toAddress}`);
 
@@ -573,7 +574,7 @@ Message:
 ${message}
                     `
                 });
-                console.log('[Feedback] Email notification sent to gymtics0@gmail.com');
+                console.log(`[Feedback] Email notification sent to ${toAddress}`);
                 emailSent = true;
             } catch (emailErr) {
                 console.error('[Feedback] Failed to send email:', emailErr);
