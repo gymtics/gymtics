@@ -64,7 +64,7 @@ const WelcomePage = () => {
 
                     <button
                         className="btn-outline"
-                        onClick={() => alert("The iOS version is coming soon to the App Store!")}
+                        onClick={() => alert("iPhone does not allow downloading apps from websites (unlike Android). We are currently submitting to the Apple App Store. Please check back soon!")}
                         style={{
                             textDecoration: 'none',
                             display: 'flex',
