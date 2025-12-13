@@ -29,10 +29,13 @@
 
   <!-- Critical Mobile Debugging -->
   <script>
-    window.onerror = function(msg, url, line, col, error) {
-      alert("CRITICAL ERROR: " + msg + "\nIn: " + url + ":" + line);
+    window.onerror = function (msg, url, line, col, error) {
+      alert("JS ERROR: " + msg + "\nIn: " + url + ":" + line);
       return false;
     };
+    window.addEventListener('unhandledrejection', function (event) {
+      alert("ASYNC ERROR: " + event.reason);
+    });
   </script>
 
   <script type="module" src="/src/main.jsx"></script>
