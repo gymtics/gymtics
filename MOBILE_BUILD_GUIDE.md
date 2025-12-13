@@ -69,6 +69,24 @@ npm run build && npx cap sync
     - Go to [App Store Connect](https://appstoreconnect.apple.com/).
     - Create a new App, select the build you just uploaded, and fill in the store details.
 
+## 4. Option: Self-Hosting (Android Only)
+If you don't want to use the Play Store, you can let users download the app directly from your website.
+
+> [!WARNING]
+> This **only works for Android**. iOS users cannot install apps from websites (unless you pay $299/year for an Enterprise account).
+
+1.  **Generate APK (Not Bundle)**:
+    - In Android Studio: **Build** > **Build Bundle(s) / APK(s)** > **Build APK(s)**.
+    - (Note: This is different from "Generate Signed Bundle").
+2.  **Locate the File**:
+    - It will be in `android/app/build/outputs/apk/debug/app-debug.apk`.
+3.  **Upload to Website**:
+    - Upload this `.apk` file to your website or Google Drive.
+    - Share the link.
+4.  **User Installation**:
+    - Users download the file.
+    - They must enable **"Install from Unknown Sources"** on their phone settings to install it.
+
 ## Troubleshooting
 - **App is Slow / "Network Error"**:
     1.  **Cold Start**: Your server on Render goes to sleep when not used. The **first load** can take 50+ seconds. Be patient!
