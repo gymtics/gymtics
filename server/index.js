@@ -96,11 +96,13 @@ const transporter = nodemailer.createTransport({
 // Verify Email Configuration on Startup
 const emailUser = process.env.SMTP_USER || process.env.EMAIL_USER;
 const emailPass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
+const emailHost = process.env.SMTP_HOST || 'smtp.gmail.com';
+const emailPort = process.env.SMTP_PORT || '465';
 
 if (emailUser && emailPass) {
     console.log(`[Email] Configured with user: ${emailUser}`);
-    console.log(`[Email] Transport Host: ${process.env.SMTP_HOST || 'smtp.gmail.com'}`);
-    console.log(`[Email] Transport Port: ${process.env.SMTP_PORT || '465'}`);
+    console.log(`[Email] Transport Host: ${emailHost}`);
+    console.log(`[Email] Transport Port: ${emailPort}`);
 
     // Verify connection configuration
     transporter.verify(function (error, success) {
@@ -115,6 +117,7 @@ if (emailUser && emailPass) {
 } else {
     console.warn('[Email] SMTP credentials missing. Email features will be disabled.');
     console.warn(`[Email] User present: ${!!emailUser}, Pass present: ${!!emailPass}`);
+    console.warn('To fix this on Render: Go to Environment > Add Environment Variable > EMAIL_USER, EMAIL_PASS');
 }
 
 // Debug Email Route
@@ -549,9 +552,15 @@ app.post('/api/feedback', async (req, res) => {
         let emailSent = false;
         if (emailUser && emailPass) {
             try {
+                // Ensure from address is valid
+                const fromAddress = process.env.EMAIL_FROM || emailUser;
+                const toAddress = 'gymtics0@gmail.com';
+
+                console.log(`[Feedback] Attempting to send email from ${fromAddress} to ${toAddress}`);
+
                 await transporter.sendMail({
-                    from: process.env.EMAIL_FROM || emailUser,
-                    to: 'gymtics0@gmail.com', // Target email
+                    from: fromAddress,
+                    to: toAddress, // Target email
                     subject: `New Feedback: ${type.toUpperCase()} from ${user ? user.username : 'Unknown'}`,
                     text: `
 New Feedback Received!
@@ -568,10 +577,12 @@ ${message}
                 emailSent = true;
             } catch (emailErr) {
                 console.error('[Feedback] Failed to send email:', emailErr);
+                console.error('[Feedback] Error Code:', emailErr.code);
+                console.error('[Feedback] Error Command:', emailErr.command);
                 // Don't fail the request if email fails, just log it
             }
         } else {
-            console.warn('[Feedback] Email skipped: SMTP_USER or SMTP_PASS not set.');
+            console.warn('[Feedback] Email skipped: SMTP_USER/EMAIL_USER or SMTP_PASS/EMAIL_PASS not set.');
         }
 
         res.json({ success: true, feedback, emailSent });
