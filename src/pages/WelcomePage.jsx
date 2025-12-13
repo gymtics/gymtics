@@ -36,49 +36,53 @@ const WelcomePage = () => {
                     Track your workouts, nutrition, and daily goals in one premium space.
                 </p>
 
-                <div className="animate-slide-up" style={{ animationDelay: '0.4s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                <div className="animate-slide-up" style={{ animationDelay: '0.4s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
                     <button
                         className="btn-primary"
                         onClick={() => navigate('/auth')}
-                        style={{ padding: '16px 48px', fontSize: '1.2rem' }}
+                        style={{ padding: '16px 48px', fontSize: '1.2rem', width: '100%', maxWidth: '300px' }}
                     >
-                        Get Started
+                        Get Started (Web)
                     </button>
 
-                    <a
-                        href="/gymtics.apk"
-                        download
-                        className="btn-outline"
-                        style={{
-                            textDecoration: 'none',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            padding: '12px 24px',
-                            color: 'var(--text-muted)',
-                            borderColor: 'var(--glass-border)'
-                        }}
-                    >
-                        <span style={{ fontSize: '1.2rem' }}>📱</span> Download for Android
-                    </a>
+                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                        <a
+                            href="/gymtics.apk"
+                            download
+                            className="btn-outline"
+                            style={{
+                                textDecoration: 'none',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: '10px 20px',
+                                color: 'var(--text-muted)',
+                                borderColor: 'var(--glass-border)',
+                                fontSize: '0.9rem'
+                            }}
+                        >
+                            <span style={{ fontSize: '1.1rem' }}>📱</span> Android
+                        </a>
 
-                    <button
-                        className="btn-outline"
-                        onClick={() => alert("iPhone does not allow downloading apps from websites (unlike Android). We are currently submitting to the Apple App Store. Please check back soon!")}
-                        style={{
-                            textDecoration: 'none',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            padding: '12px 24px',
-                            color: 'var(--text-muted)',
-                            borderColor: 'var(--glass-border)',
-                            background: 'transparent',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        <span style={{ fontSize: '1.2rem' }}>🍎</span> Download for iOS
-                    </button>
+                        <button
+                            className="btn-outline"
+                            onClick={() => alert("iPhone does not allow downloading apps from websites (unlike Android). We are currently submitting to the Apple App Store. Please check back soon!")}
+                            style={{
+                                textDecoration: 'none',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: '10px 20px',
+                                color: 'var(--text-muted)',
+                                borderColor: 'var(--glass-border)',
+                                background: 'transparent',
+                                cursor: 'pointer',
+                                fontSize: '0.9rem'
+                            }}
+                        >
+                            <span style={{ fontSize: '1.1rem' }}>🍎</span> iOS
+                        </button>
+                    </div>
                 </div>
             </div>
 
