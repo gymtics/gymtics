@@ -87,6 +87,12 @@ If you don't want to use the Play Store, you can let users download the app dire
     - Users download the file.
     - They must enable **"Install from Unknown Sources"** on their phone settings to install it.
 
+> [!CAUTION]
+> **No Automatic Updates**: Unlike the Play Store, users who install the APK from your website will **NOT** get automatic updates. When you release a new version, they must:
+> 1. Come back to your website.
+> 2. Download the new APK.
+> 3. Install it manually over the old one.
+
 ## Troubleshooting
 - **App is Slow / "Network Error"**:
     1.  **Cold Start**: Your server on Render goes to sleep when not used. The **first load** can take 50+ seconds. Be patient!
