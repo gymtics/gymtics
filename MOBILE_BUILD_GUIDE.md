@@ -13,6 +13,9 @@ npm run build && npx cap sync
 ```
 
 ## 2. Building for Android (Play Store)
+> [!IMPORTANT]
+> You need a **Google Play Developer Account** ($25 one-time fee) to upload to the Play Store.
+
 1.  **Open Terminal and Navigate to Project**:
     ```bash
     cd /Users/sivaram/Downloads/gym_app
@@ -21,14 +24,22 @@ npm run build && npx cap sync
     ```bash
     npx cap open android
     ```
-3.  Wait for Gradle sync to finish.
-4.  **Run on Emulator**: Click the "Run" (Green Play) button to test.
-4.  **Generate Signed APK/Bundle (For Play Store)**:
+3.  **Generate Signed App Bundle (.aab)**:
     - Go to **Build** > **Generate Signed Bundle / APK**.
-    - Select **Android App Bundle**.
-    - Create a new Key Store (keep this safe!).
-    - Finish the wizard to generate your `.aab` file.
-    - Upload this file to the Google Play Console.
+    - Select **Android App Bundle** (Required for Play Store) > Next.
+    - **Key Store Path**: Click "Create new" if you don't have one. Save it safely!
+    - **Key/Keystore Password**: Remember these.
+    - Click **Next/Finish** to generate the file.
+    - Locate the file (usually in `android/app/release/app-release.aab`).
+
+4.  **Upload to Play Console**:
+    - Go to [Google Play Console](https://play.google.com/console).
+    - **Create App**: Enter name "Gymtics", language, etc.
+    - **Dashboard**: Follow the "Set up your app" checklist (Privacy Policy, App Content, etc.).
+    - **Create Release**: Go to **Testing > Closed testing** (or Production).
+    - Click **Create new release**.
+    - Upload your `.aab` file here.
+    - Click **Next** > **Save** > **Send for Review**.
 
 ## 3. Building for iOS (App Store)
 > [!IMPORTANT]
