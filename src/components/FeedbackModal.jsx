@@ -15,7 +15,7 @@ const FeedbackModal = ({ onClose }) => {
         setIsSubmitting(true);
 
         try {
-            const apiUrl = import.meta.env.VITE_API_URL;
+            const apiUrl = import.meta.env.VITE_API_URL || '/api';
             const res = await fetch(`${apiUrl}/feedback`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
