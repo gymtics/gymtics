@@ -1,6 +1,7 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 
-const API_URL = '/api';
+// Use environment variable for API URL (Mobile support), fallback to production if missing
+const API_URL = import.meta.env.VITE_API_URL || 'https://gymtics.onrender.com/api';
 
 
 

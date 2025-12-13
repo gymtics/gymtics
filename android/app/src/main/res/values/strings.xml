@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Gymtics</string>
+    <string name="title_activity_main">Gymtics</string>
+    <string name="package_name">com.gymtics.app</string>
+    <string name="custom_url_scheme">com.gymtics.app</string>
+</resources>
