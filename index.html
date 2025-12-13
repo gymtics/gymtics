@@ -10,7 +10,31 @@
 </head>
 
 <body>
-  <div id="root"></div>
+  <div id="root">
+    <style>
+      body {
+        background-color: #000000;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        font-family: sans-serif;
+      }
+    </style>
+    <h1>Loading...</h1>
+    <p>If this stays for more than 1 minute, the internet is slow or server is waking up.</p>
+  </div>
+
+  <!-- Critical Mobile Debugging -->
+  <script>
+    window.onerror = function(msg, url, line, col, error) {
+      alert("CRITICAL ERROR: " + msg + "\nIn: " + url + ":" + line);
+      return false;
+    };
+  </script>
+
   <script type="module" src="/src/main.jsx"></script>
 </body>
 
