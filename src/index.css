@@ -199,6 +199,19 @@ input:focus {
     --spacing-lg: 1.5rem;
   }
 
+  /* Performance: Disable fixed background on mobile (causes scroll jank) */
+  * {
+    background-attachment: scroll !important;
+  }
+
+  /* Performance: Remove expensive glass bloat on mobile */
+  .glass-panel {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(0, 0, 0, 0.9);
+    /* Opaque fallback */
+  }
+
   h1 {
     font-size: 2.5rem;
   }
