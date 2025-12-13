@@ -31,20 +31,32 @@ npm run build && npx cap sync
     - Upload this file to the Google Play Console.
 
 ## 3. Building for iOS (App Store)
-1.  **Open Xcode**:
+> [!IMPORTANT]
+> You need a **Paid Apple Developer Account** ($99/year) to upload to the App Store.
+
+1.  **Open Project in Xcode**:
     ```bash
+    cd /Users/sivaram/Downloads/gym_app
     npx cap open ios
     ```
-2.  **Configure Team**:
-    - Click on "App" in the file navigator (left).
-    - Go to **Signing & Capabilities**.
-    - Select your Apple Developer Team.
-3.  **Run on Simulator**: Select a device and click Play.
-4.  **Archive for App Store**:
-    - Go to **Product** > **Destination** > **Any iOS Device (arm64)**.
-    - Go to **Product** > **Archive**.
-    - Once finished, the Organizer window opens.
-    - Click **Distribute App** to upload to App Store Connect.
+2.  **Configure Signing**:
+    - In Xcode, click on **"App"** (the blue icon) in the left file navigator.
+    - Click on the **Signing & Capabilities** tab.
+    - Under **Team**, select your Apple Developer Account.
+    - Ensure "Automatically manage signing" is checked.
+3.  **Create the Build (Archive)**:
+    - In the top toolbar, change the device (where it says "iPhone 16 pro" etc.) to **"Any iOS Device (arm64)"**.
+    - Go to the top menu: **Product** > **Archive**.
+    - Wait for the build to finish.
+4.  **Upload to App Store**:
+    - Once the Archive is done, the **Organizer** window will open.
+    - Select your new build.
+    - Click the blue **Distribute App** button.
+    - Select **App Store Connect** > **Upload** > **Next**.
+    - Follow the prompts to upload.
+5.  **Finish in Browser**:
+    - Go to [App Store Connect](https://appstoreconnect.apple.com/).
+    - Create a new App, select the build you just uploaded, and fill in the store details.
 
 ## Troubleshooting
 - **App is Slow / "Network Error"**:
