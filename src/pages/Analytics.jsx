@@ -58,16 +58,7 @@ const Analytics = () => {
     // 1. Gym Consistency Data
     const [timeRange, setTimeRange] = useState('7d');
 
-    // Leaderboard Data
-    const [leaders, setLeaders] = useState([]);
-    useEffect(() => {
-        fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5001/api'}/leaderboard`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) setLeaders(data.leaderboard.slice(0, 5)); // Top 5 Preview
-            })
-            .catch(err => console.error(err));
-    }, []);
+
 
     const getConsistencyData = () => {
         const today = new Date();
@@ -249,7 +240,7 @@ const Analytics = () => {
                                 cursor: 'pointer'
                             }}
                         >
-                            <span>🏆</span>
+                            <span style={{ fontSize: '1.2rem' }}>🏆</span>
                             <span>Leaderboard</span>
                         </button>
                     </div>
@@ -424,38 +415,7 @@ const Analytics = () => {
 
             </div>
 
-            {/* Mini Leaderboard */}
-            <div className="glass-panel animate-slide-up" style={{
-                animationDelay: '0.1s',
-                background: 'linear-gradient(145deg, rgba(30,30,30,0.6) 0%, rgba(20,20,20,0.8) 100%)',
-                border: '1px solid rgba(255,255,255,0.05)'
-            }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <span style={{ fontSize: '1.5rem' }}>👑</span>
-                        <h3 style={{ color: '#fff', margin: 0, fontWeight: '600' }}>Top Athletes</h3>
-                    </div>
-                    <button onClick={() => navigate('/leaderboard')} style={{ color: 'var(--primary)', background: 'none', border: 'none', fontSize: '0.9rem', cursor: 'pointer' }}>View All →</button>
-                </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {leaders.length > 0 ? leaders.map((leader, i) => (
-                        <div key={leader.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <span style={{ fontWeight: 'bold', color: i === 0 ? '#FFD700' : i === 1 ? '#C0C0C0' : i === 2 ? '#CD7F32' : 'white', width: '20px' }}>#{i + 1}</span>
-                                <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#333', backgroundImage: leader.avatar ? `url(${leader.avatar})` : 'none', backgroundSize: 'cover', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem' }}>{!leader.avatar && leader.username[0]}</div>
-                                <span style={{ color: 'white', fontSize: '0.9rem' }}>{leader.username}</span>
-                            </div>
-                            <div style={{ display: 'flex', gap: '15px', fontSize: '0.8rem' }}>
-                                <span style={{ color: '#4ade80' }}>Gym: {leader.gymScore}</span>
-                                <span style={{ color: '#facc15' }}>Diet: {leader.dietScore}</span>
-                            </div>
-                        </div>
-                    )) : (
-                        <p style={{ color: 'var(--text-muted)', textAlign: 'center', fontSize: '0.9rem' }}>Loading rankings...</p>
-                    )}
-                </div>
-            </div>
 
             {/* PR Tracker */}
             <div className="glass-panel animate-slide-up" style={{
