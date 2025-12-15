@@ -24,8 +24,19 @@ const DashboardDay = () => {
         return <div style={{ color: 'white', padding: '2rem' }}>Error: Data Context not found. Please refresh.</div>;
     }
 
-    const { history, updateHistory, isLoading } = context;
+    const { history, updateHistory, addWeight, isLoading } = context;
     const dateObj = parseISO(date);
+
+    // Local state for weight input in this view
+    const [dayWeight, setDayWeight] = useState('');
+
+    const saveDayWeight = (e) => {
+        e.preventDefault();
+        if (!dayWeight) return;
+        addWeight(date, parseFloat(dayWeight));
+        toast.success("Weight saved!");
+        setDayWeight('');
+    };
 
     if (isLoading) {
         return (
@@ -351,46 +362,78 @@ const DashboardDay = () => {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
 
-                {/* Gym Toggle */}
-                <div className="glass-panel animate-slide-up" style={{ padding: '2rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div>
-                            <h3 style={{ margin: 0 }}>Gym Attendance</h3>
-                            <p style={{ color: 'var(--text-muted)', margin: '5px 0 0 0' }}>Mark if you visited the gym today</p>
-                        </div>
-                        <div
-                            onClick={toggleGymVisited}
-                            style={{
-                                width: '80px',
-                                height: '40px',
-                                background: currentData.gymVisited === true ? 'var(--primary)' :
-                                    currentData.gymVisited === false ? 'var(--accent)' : 'var(--glass-bg)',
-                                borderRadius: '20px',
-                                position: 'relative',
-                                cursor: 'pointer',
-                                transition: 'background 0.3s'
-                            }}
-                        >
-                            <div style={{
-                                width: '32px',
-                                height: '32px',
-                                background: 'white',
-                                borderRadius: '50%',
-                                position: 'absolute',
-                                top: '4px',
-                                left: currentData.gymVisited === true ? '44px' :
-                                    currentData.gymVisited === false ? '4px' : '24px', // Center if null
-                                transition: 'left 0.3s',
-                                boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: '1.2rem'
-                            }}>
-                                {currentData.gymVisited === true ? '✅' :
-                                    currentData.gymVisited === false ? '❌' : ''}
+                {/* Gym Toggle & Weight */}
+                <div className="glass-panel animate-slide-up" style={{ padding: '1.5rem 2rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+
+                        {/* Left: Attendance Toggle */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <div
+                                onClick={toggleGymVisited}
+                                style={{
+                                    width: '70px',
+                                    height: '36px',
+                                    background: currentData.gymVisited === true ? 'var(--primary)' :
+                                        currentData.gymVisited === false ? 'var(--accent)' : 'var(--glass-bg)',
+                                    borderRadius: '20px',
+                                    position: 'relative',
+                                    cursor: 'pointer',
+                                    transition: 'background 0.3s'
+                                }}
+                            >
+                                <div style={{
+                                    width: '28px',
+                                    height: '28px',
+                                    background: 'white',
+                                    borderRadius: '50%',
+                                    position: 'absolute',
+                                    top: '4px',
+                                    left: currentData.gymVisited === true ? '38px' :
+                                        currentData.gymVisited === false ? '4px' : '21px',
+                                    transition: 'left 0.3s',
+                                    boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '1rem'
+                                }}>
+                                    {currentData.gymVisited === true ? '✅' :
+                                        currentData.gymVisited === false ? '❌' : ''}
+                                </div>
+                            </div>
+                            <div>
+                                <h3 style={{ margin: 0, fontSize: '1.1rem' }}>Gym Status</h3>
+                                <p style={{ color: 'var(--text-muted)', margin: 0, fontSize: '0.8rem' }}>Visited today?</p>
                             </div>
                         </div>
+
+                        {/* Right: Quick Weight Log */}
+                        <form onSubmit={saveDayWeight} style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            background: 'rgba(255,255,255,0.05)',
+                            padding: '4px 8px',
+                            borderRadius: '12px',
+                            border: '1px solid rgba(255,255,255,0.1)'
+                        }}>
+                            <span style={{ fontSize: '1.2rem' }}>⚖️</span>
+                            <input
+                                type="number"
+                                placeholder="Body Weight"
+                                value={dayWeight}
+                                onChange={(e) => setDayWeight(e.target.value)}
+                                style={{
+                                    width: '90px',
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: 'white',
+                                    outline: 'none',
+                                    fontSize: '0.9rem'
+                                }}
+                            />
+                            <button type="submit" className="btn-primary" style={{ padding: '4px 10px', fontSize: '0.9rem' }}>+</button>
+                        </form>
                     </div>
                 </div>
 
