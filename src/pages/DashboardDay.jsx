@@ -689,10 +689,14 @@ const DashboardDay = () => {
                                     placeholder="Food item (e.g. Banana)"
                                     value={mealInput}
                                     onChange={(e) => setMealInput(e.target.value)}
-                                    onFocus={() => mealInput.length > 0 && setShowFoodSuggestions(true)}
-                                    onBlur={() => setTimeout(() => setShowFoodSuggestions(false), 200)}
+                                    onFocus={() => {
+                                        console.log("Input focused, mealInput:", mealInput);
+                                        if (mealInput.length > 0) setShowFoodSuggestions(true);
+                                    }}
+                                    onBlur={() => setTimeout(() => setShowFoodSuggestions(false), 300)}
                                     style={{ width: '100%' }}
                                 />
+                                {console.log("Render check - Show:", showFoodSuggestions, "Filtered:", filteredFoods.length)}
                                 {showFoodSuggestions && filteredFoods.length > 0 && (
                                     <div style={{
                                         position: 'absolute',
@@ -700,11 +704,11 @@ const DashboardDay = () => {
                                         left: 0,
                                         right: 0,
                                         background: 'var(--bg-dark)',
-                                        border: '1px solid var(--glass-border)',
+                                        border: '2px solid red', // DEBUG: Visible border
                                         borderRadius: 'var(--radius-sm)',
                                         maxHeight: '200px',
                                         overflowY: 'auto',
-                                        zIndex: 1000,
+                                        zIndex: 9999, // DEBUG: Extreme z-index
                                         boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
                                     }}>
                                         {filteredFoods.map(([name, data], idx) => (
