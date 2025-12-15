@@ -24,8 +24,11 @@ const DashboardDay = () => {
         return <div style={{ color: 'white', padding: '2rem' }}>Error: Data Context not found. Please refresh.</div>;
     }
 
-    const { history, updateHistory, addWeight, isLoading } = context;
+    const { history, updateHistory, addWeight, deleteWeight, weightLog, isLoading } = context;
     const dateObj = parseISO(date);
+
+    // Check if there is already a weight entry for this date
+    const existingWeight = weightLog.find(log => log.date === date);
 
     // Local state for weight input in this view
     const [dayWeight, setDayWeight] = useState('');
@@ -364,76 +367,117 @@ const DashboardDay = () => {
 
                 {/* Gym Toggle & Weight */}
                 <div className="glass-panel animate-slide-up" style={{ padding: '1.5rem 2rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
-                        {/* Left: Attendance Toggle */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                            <div
-                                onClick={toggleGymVisited}
-                                style={{
-                                    width: '70px',
-                                    height: '36px',
-                                    background: currentData.gymVisited === true ? 'var(--primary)' :
-                                        currentData.gymVisited === false ? 'var(--accent)' : 'var(--glass-bg)',
-                                    borderRadius: '20px',
-                                    position: 'relative',
-                                    cursor: 'pointer',
-                                    transition: 'background 0.3s'
-                                }}
-                            >
-                                <div style={{
-                                    width: '28px',
-                                    height: '28px',
-                                    background: 'white',
-                                    borderRadius: '50%',
-                                    position: 'absolute',
-                                    top: '4px',
-                                    left: currentData.gymVisited === true ? '38px' :
-                                        currentData.gymVisited === false ? '4px' : '21px',
-                                    transition: 'left 0.3s',
-                                    boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontSize: '1rem'
-                                }}>
-                                    {currentData.gymVisited === true ? '✅' :
-                                        currentData.gymVisited === false ? '❌' : ''}
+                        {/* Row 1: Attendance Toggle */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <div
+                                    onClick={toggleGymVisited}
+                                    style={{
+                                        width: '70px',
+                                        height: '36px',
+                                        background: currentData.gymVisited === true ? 'var(--primary)' :
+                                            currentData.gymVisited === false ? 'var(--accent)' : 'var(--glass-bg)',
+                                        borderRadius: '20px',
+                                        position: 'relative',
+                                        cursor: 'pointer',
+                                        transition: 'background 0.3s'
+                                    }}
+                                >
+                                    <div style={{
+                                        width: '28px',
+                                        height: '28px',
+                                        background: 'white',
+                                        borderRadius: '50%',
+                                        position: 'absolute',
+                                        top: '4px',
+                                        left: currentData.gymVisited === true ? '38px' :
+                                            currentData.gymVisited === false ? '4px' : '21px',
+                                        transition: 'left 0.3s',
+                                        boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '1rem'
+                                    }}>
+                                        {currentData.gymVisited === true ? '✅' :
+                                            currentData.gymVisited === false ? '❌' : ''}
+                                    </div>
                                 </div>
-                            </div>
-                            <div>
-                                <h3 style={{ margin: 0, fontSize: '1.1rem' }}>Gym Status</h3>
-                                <p style={{ color: 'var(--text-muted)', margin: 0, fontSize: '0.8rem' }}>Visited today?</p>
+                                <div>
+                                    <h3 style={{ margin: 0, fontSize: '1.1rem' }}>Gym Status</h3>
+                                    <p style={{ color: 'var(--text-muted)', margin: 0, fontSize: '0.8rem' }}>Visited today?</p>
+                                </div>
                             </div>
                         </div>
 
-                        {/* Right: Quick Weight Log */}
-                        <form onSubmit={saveDayWeight} style={{
+                        {/* Row 2: Weight Log */}
+                        <div style={{
+                            borderTop: '1px solid rgba(255,255,255,0.1)',
+                            paddingTop: '1rem',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '0.5rem',
-                            background: 'rgba(255,255,255,0.05)',
-                            padding: '4px 8px',
-                            borderRadius: '12px',
-                            border: '1px solid rgba(255,255,255,0.1)'
+                            justifyContent: 'space-between'
                         }}>
-                            <span style={{ fontSize: '1.2rem' }}>⚖️</span>
-                            <input
-                                type="number"
-                                placeholder="Body Weight"
-                                value={dayWeight}
-                                onChange={(e) => setDayWeight(e.target.value)}
-                                style={{
-                                    width: '90px',
-                                    background: 'transparent',
-                                    border: 'none',
-                                    color: 'white',
-                                    outline: 'none',
-                                    fontSize: '0.9rem'
-                                }}
-                            />
-                            <button type="submit" className="btn-primary" style={{ padding: '4px 10px', fontSize: '0.9rem' }}>+</button>
-                        </form>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <span style={{ fontSize: '1.2rem' }}>⚖️</span>
+                                <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '500' }}>Body Weight</h3>
+                            </div>
+
+                            {existingWeight ? (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                    <span style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--secondary)' }}>
+                                        {existingWeight.weight} kg
+                                    </span>
+                                    <button
+                                        onClick={() => {
+                                            if (window.confirm("Clear this weight entry?")) {
+                                                deleteWeight(date);
+                                                toast.success("Weight cleared");
+                                            }
+                                        }}
+                                        style={{
+                                            background: 'rgba(255, 68, 68, 0.2)',
+                                            border: '1px solid rgba(255, 68, 68, 0.3)',
+                                            color: '#ff4444',
+                                            borderRadius: '50%',
+                                            width: '24px',
+                                            height: '24px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            cursor: 'pointer',
+                                            fontSize: '0.8rem'
+                                        }}
+                                    >✕</button>
+                                </div>
+                            ) : (
+                                <form onSubmit={saveDayWeight} style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem',
+                                }}>
+                                    <input
+                                        type="number"
+                                        placeholder="Add kg..."
+                                        value={dayWeight}
+                                        onChange={(e) => setDayWeight(e.target.value)}
+                                        style={{
+                                            width: '80px',
+                                            background: 'rgba(0,0,0,0.2)',
+                                            border: '1px solid rgba(255,255,255,0.1)',
+                                            color: 'white',
+                                            padding: '6px 10px',
+                                            borderRadius: '8px',
+                                            outline: 'none',
+                                            fontSize: '0.9rem'
+                                        }}
+                                    />
+                                    <button type="submit" className="btn-primary" style={{ padding: '6px 12px', fontSize: '0.9rem' }}>Save</button>
+                                </form>
+                            )}
+                        </div>
                     </div>
                 </div>
 

@@ -197,8 +197,11 @@ export const DataProvider = ({ children }) => {
   };
 
   const addWeight = async (date, weight) => {
-    const newLog = { date, weight: parseFloat(weight) };
-    setWeightLog(prev => [...prev, newLog].sort((a, b) => new Date(a.date) - new Date(b.date)));
+    // Check if weight already exists for this date, if so, replace it
+    setWeightLog(prev => {
+      const filtered = prev.filter(log => log.date !== date);
+      return [...filtered, { date, weight: parseFloat(weight) }].sort((a, b) => new Date(a.date) - new Date(b.date));
+    });
 
     if (user?.id) {
       try {
@@ -209,6 +212,22 @@ export const DataProvider = ({ children }) => {
         });
       } catch (err) {
         console.error("Failed to save weight:", err);
+      }
+    }
+  };
+
+  const deleteWeight = async (date) => {
+    setWeightLog(prev => prev.filter(log => log.date !== date));
+
+    if (user?.id) {
+      try {
+        await fetch(`${API_URL}/data/weight`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id, date })
+        });
+      } catch (err) {
+        console.error("Failed to delete weight:", err);
       }
     }
   };
@@ -250,7 +269,7 @@ export const DataProvider = ({ children }) => {
   };
 
   return (
-    <DataContext.Provider value={{ history, updateHistory, weightLog, addWeight, prs, updatePR, isLoading, error, deletePR }}>
+    <DataContext.Provider value={{ history, updateHistory, weightLog, addWeight, deleteWeight, prs, updatePR, isLoading, error, deletePR }}>
       {children}
     </DataContext.Provider>
   );
