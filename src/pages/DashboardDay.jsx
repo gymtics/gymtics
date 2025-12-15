@@ -7,30 +7,6 @@ import { format, parseISO } from 'date-fns';
 import { exerciseLibrary, getCategories } from '../utils/exercises';
 import { foodData, calculateCalories } from '../utils/foodData';
 import { useToast } from '../components/ToastProvider';
-import confetti from 'canvas-confetti';
-
-// Sad Rain CSS (Injected dynamically)
-const sadRainStyle = `
-@keyframes fall {
-    0% { transform: translateY(-10vh); opacity: 0; }
-    10% { opacity: 1; }
-    100% { transform: translateY(110vh); opacity: 0; }
-}
-.sad-emoji {
-    position: fixed;
-    top: -10vh;
-    font-size: 2rem;
-    pointer-events: none;
-    z-index: 9999;
-    animation: fall linear forwards;
-}
-`;
-if (!document.getElementById('sad-rain-style')) {
-    const style = document.createElement('style');
-    style.id = 'sad-rain-style';
-    style.innerHTML = sadRainStyle;
-    document.head.appendChild(style);
-}
 
 const DashboardDay = () => {
     const { date } = useParams();
@@ -89,40 +65,70 @@ const DashboardDay = () => {
     const [clipboard, setClipboard] = useLocalStorage('gym_app_clipboard', null);
 
     // Handlers
-    const triggerSadRain = () => {
-        const emojis = ['😢', '😭', '💔', '🌧️', '🥺'];
-        const container = document.body;
+    const triggerFullScreenEmoji = (emoji) => {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.7);
+            z-index: 10000;
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease-out;
+        `;
 
-        for (let i = 0; i < 20; i++) {
-            const emoji = document.createElement('div');
-            emoji.innerText = emojis[Math.floor(Math.random() * emojis.length)];
-            emoji.className = 'sad-emoji';
-            emoji.style.left = Math.random() * 100 + 'vw';
-            emoji.style.animationDuration = (Math.random() * 2 + 2) + 's'; // 2-4s
-            emoji.style.fontSize = (Math.random() * 1.5 + 1) + 'rem';
-            container.appendChild(emoji);
+        const emojiEl = document.createElement('div');
+        emojiEl.innerText = emoji;
+        emojiEl.style.cssText = `
+            font-size: 15rem;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        `;
 
-            // Cleanup
+        // Add animations styles
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes popIn {
+                0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+                100% { transform: scale(1) rotate(0deg); opacity: 1; }
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes fadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        overlay.appendChild(emojiEl);
+        document.body.appendChild(overlay);
+
+        // Remove after 1.5s
+        setTimeout(() => {
+            overlay.style.animation = 'fadeOut 0.3s ease-out forwards';
             setTimeout(() => {
-                emoji.remove();
-            }, 4000);
-        }
+                overlay.remove();
+                style.remove();
+            }, 300);
+        }, 1500);
     };
 
     const toggleGymVisited = () => {
         let nextState;
         if (currentData.gymVisited === null || currentData.gymVisited === undefined) {
             nextState = true;
-            confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#4ade80', '#ffffff', '#FFD700']
-            });
+            triggerFullScreenEmoji('☠️');
         }
         else if (currentData.gymVisited === true) {
             nextState = false;
-            triggerSadRain();
+            triggerFullScreenEmoji('🤡');
         }
         else nextState = null; // No -> Unmarked
 
