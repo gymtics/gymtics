@@ -611,6 +611,51 @@ app.get('/api/feedback', async (req, res) => {
     }
 });
 
+// Get Leaderboard Data
+app.get('/api/leaderboard', async (req, res) => {
+    try {
+        const users = await User.findAll({
+            attributes: ['id', 'username', 'avatar'],
+            include: [{
+                model: GymLog,
+                attributes: ['date', 'gymVisited'],
+                include: [{
+                    model: MealItem,
+                    attributes: ['id', 'completed']
+                }]
+            }]
+        });
+
+        const leaderboard = users.map(user => {
+            const logs = user.GymLogs || [];
+
+            // Gym Score: Count unique days visited
+            const gymScore = logs.filter(log => log.gymVisited).length;
+
+            // Diet Score: Count unique days with at least one meal logged (or completed)
+            // Assuming simplified logic: if a log has meals, it counts.
+            const dietScore = logs.filter(log => log.MealItems && log.MealItems.length > 0).length;
+
+            return {
+                id: user.id,
+                username: user.username,
+                avatar: user.avatar,
+                gymScore,
+                dietScore,
+                totalScore: gymScore + dietScore
+            };
+        });
+
+        // Sort by Total Score DESC
+        leaderboard.sort((a, b) => b.totalScore - a.totalScore); // Descending
+
+        res.json({ success: true, leaderboard: leaderboard.slice(0, 50) }); // Top 50
+    } catch (err) {
+        console.error('Leaderboard Error:', err);
+        res.status(500).json({ error: 'Failed to fetch leaderboard' });
+    }
+});
+
 // Global Error Handler
 app.use((err, req, res, next) => {
     console.error('Unhandled Error:', err);
