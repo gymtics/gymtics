@@ -815,22 +815,28 @@ const DashboardDay = () => {
                                         style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: 'var(--primary)' }}
                                     />
                                     <div>
-                                        <span style={{
-                                            fontSize: '0.8rem',
-                                            color: 'var(--primary)',
-                                            textTransform: 'uppercase',
-                                            fontWeight: 'bold',
-                                            marginRight: '0.5rem'
-                                        }}>{item.type}</span>
-                                        <span style={{ textDecoration: item.completed ? 'line-through' : 'none' }}>
-                                            {item.text}
-                                            {item.calories ? ` (${item.calories} kcal)` : ''}
-                                        </span>
-                                        {item.quantity && (
-                                            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginLeft: '0.5rem' }}>
-                                                {item.quantity} {item.unit === '100g' ? 'g' : item.unit === '100ml' ? 'ml' : 'units'}
-                                            </span>
-                                        )}
+                                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
+                                            <span style={{
+                                                fontSize: '0.7rem',
+                                                background: 'var(--primary)',
+                                                color: 'var(--bg-dark)',
+                                                padding: '2px 6px',
+                                                borderRadius: '4px',
+                                                fontWeight: 'bold',
+                                                textTransform: 'uppercase',
+                                                marginRight: '8px'
+                                            }}>{item.type}</span>
+                                            <span style={{
+                                                fontWeight: '500',
+                                                textDecoration: item.completed ? 'line-through' : 'none',
+                                                color: item.completed ? 'var(--text-muted)' : 'white'
+                                            }}>{item.text}</span>
+                                        </div>
+                                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                            {item.quantity && <span>{item.quantity} {item.unit}</span>}
+                                            {item.quantity && item.calories > 0 && <span>•</span>}
+                                            {item.calories > 0 && <span style={{ color: 'var(--secondary)' }}>{item.calories} kcal</span>}
+                                        </div>
                                     </div>
                                 </div>
                                 <button
