@@ -204,14 +204,21 @@ const DashboardDay = () => {
         e.preventDefault();
         if (!mealInput.trim()) return;
 
+        // Smart default for quantity if empty
+        let finalQty = parseFloat(mealQuantity);
+        if (!finalQty || isNaN(finalQty)) {
+            if (mealUnit.includes('100')) finalQty = 100; // Default to 100 for grams/ml
+            else finalQty = 1; // Default to 1 for units
+        }
+
         // Try to calculate calories even if manually typed
-        const calories = calculateCalories(mealInput, parseFloat(mealQuantity) || 0, mealUnit);
+        const calories = calculateCalories(mealInput, finalQty, mealUnit);
 
         const newMeal = {
             id: Date.now().toString(),
             type: mealType,
             text: mealInput,
-            quantity: parseFloat(mealQuantity) || 0,
+            quantity: finalQty,
             unit: mealUnit,
             calories: calories, // This will now be populated if matched
             completed: false
@@ -833,11 +840,11 @@ const DashboardDay = () => {
                                             }}>{item.text}</span>
                                         </div>
                                         <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                            {item.quantity && <span>
-                                                {item.quantity} {item.unit.replace('100', '').replace('1 ', '')}
-                                            </span>}
-                                            {item.quantity && item.calories > 0 && <span>•</span>}
-                                            {item.calories > 0 && <span style={{ color: 'var(--secondary)' }}>{item.calories} kcal</span>}
+                                            <span>
+                                                {item.quantity ?? 0} {item.unit ? item.unit.replace('100', '').replace('1 ', '') : ''}
+                                            </span>
+                                            <span>•</span>
+                                            <span style={{ color: 'var(--secondary)' }}>{item.calories || 0} kcal</span>
                                         </div>
                                     </div>
                                 </div>
