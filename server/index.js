@@ -647,9 +647,25 @@ app.get('/api/leaderboard', async (req, res) => {
         });
 
         // Sort by Total Score DESC
+        // Sort by Total Score DESC
         leaderboard.sort((a, b) => b.totalScore - a.totalScore); // Descending
 
-        res.json({ success: true, leaderboard: leaderboard.slice(0, 50) }); // Top 50
+        // User Rank Logic
+        let userRank = null;
+        const currentUserId = req.query.userId ? parseInt(req.query.userId) : null;
+
+        if (currentUserId) {
+            const rankIndex = leaderboard.findIndex(u => u.id === currentUserId);
+            if (rankIndex !== -1) {
+                userRank = { ...leaderboard[rankIndex], rank: rankIndex + 1 };
+            }
+        }
+
+        res.json({
+            success: true,
+            leaderboard: leaderboard.slice(0, 100), // Top 100
+            userRank
+        });
     } catch (err) {
         console.error('Leaderboard Error:', err);
         res.status(500).json({ error: 'Failed to fetch leaderboard' });
