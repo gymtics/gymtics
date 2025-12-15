@@ -211,7 +211,7 @@ const DashboardDay = () => {
             id: Date.now().toString(),
             type: mealType,
             text: mealInput,
-            quantity: parseFloat(mealQuantity),
+            quantity: parseFloat(mealQuantity) || 0,
             unit: mealUnit,
             calories: calories, // This will now be populated if matched
             completed: false
