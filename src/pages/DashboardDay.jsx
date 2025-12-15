@@ -204,6 +204,7 @@ const DashboardDay = () => {
         e.preventDefault();
         if (!mealInput.trim()) return;
 
+        // Try to calculate calories even if manually typed
         const calories = calculateCalories(mealInput, parseFloat(mealQuantity) || 0, mealUnit);
 
         const newMeal = {
@@ -212,7 +213,7 @@ const DashboardDay = () => {
             text: mealInput,
             quantity: parseFloat(mealQuantity),
             unit: mealUnit,
-            calories: calories,
+            calories: calories, // This will now be populated if matched
             completed: false
         };
         updateHistory(date, { ...currentData, meals: [...meals, newMeal] });
@@ -703,7 +704,8 @@ const DashboardDay = () => {
                                         borderRadius: 'var(--radius-sm)',
                                         maxHeight: '200px',
                                         overflowY: 'auto',
-                                        zIndex: 10
+                                        zIndex: 1000,
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
                                     }}>
                                         {filteredFoods.map(([name, data], idx) => (
                                             <div
