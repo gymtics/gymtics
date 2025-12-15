@@ -833,7 +833,9 @@ const DashboardDay = () => {
                                             }}>{item.text}</span>
                                         </div>
                                         <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                            {item.quantity && <span>{item.quantity} {item.unit}</span>}
+                                            {item.quantity && <span>
+                                                {item.quantity} {item.unit.replace('100', '').replace('1 ', '')}
+                                            </span>}
                                             {item.quantity && item.calories > 0 && <span>•</span>}
                                             {item.calories > 0 && <span style={{ color: 'var(--secondary)' }}>{item.calories} kcal</span>}
                                         </div>
