@@ -365,11 +365,11 @@ const Analytics = () => {
                     {weightLog.length > 0 ? (
                         <div style={{ height: '280px', width: '100%' }}>
                             <ResponsiveContainer>
-                                <AreaChart data={weightLog}>
+                                <AreaChart data={[...weightLog].sort((a, b) => new Date(a.date) - new Date(b.date))}>
                                     <defs>
                                         <linearGradient id="weightGradient" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="var(--secondary)" stopOpacity={0.4} />
-                                            <stop offset="100%" stopColor="var(--secondary)" stopOpacity={0} />
+                                            <stop offset="5%" stopColor="var(--secondary)" stopOpacity={0.3} />
+                                            <stop offset="95%" stopColor="var(--secondary)" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
@@ -380,12 +380,17 @@ const Analytics = () => {
                                         tickLine={false}
                                         axisLine={false}
                                         dy={10}
+                                        minTickGap={30}
                                         fontSize={12}
                                     />
                                     <YAxis
                                         stroke="#666"
-                                        domain={['dataMin - 2', 'dataMax + 2']}
-                                        hide
+                                        domain={['auto', 'auto']}
+                                        tickLine={false}
+                                        axisLine={false}
+                                        dx={-10}
+                                        fontSize={12}
+                                        unit="kg"
                                     />
                                     <Tooltip content={<CustomTooltip />} />
                                     <Area
@@ -395,6 +400,8 @@ const Analytics = () => {
                                         strokeWidth={3}
                                         fill="url(#weightGradient)"
                                         animationDuration={1000}
+                                        dot={{ stroke: 'var(--secondary)', strokeWidth: 2, fill: '#1a1a1a', r: 4 }}
+                                        activeDot={{ r: 6, strokeWidth: 0 }}
                                     />
                                 </AreaChart>
                             </ResponsiveContainer>
