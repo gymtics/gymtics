@@ -410,8 +410,7 @@ const Analytics = () => {
                             padding: '6px',
                             borderRadius: '12px',
                             flexWrap: 'wrap', // Allow wrapping but keep groups together
-                            justifyContent: 'flex-end',
-                            marginLeft: 'auto'
+                            justifyContent: 'flex-start' // Align to left
                         }}>
                             <select
                                 value={prExercise}
