@@ -29,13 +29,33 @@
 
   <!-- Critical Mobile Debugging -->
   <script>
-    window.onerror = function (msg, url, line, col, error) {
-      alert("JS ERROR: " + msg + "\nIn: " + url + ":" + line);
-      return false;
-    };
-    window.addEventListener('unhandledrejection', function (event) {
-      alert("ASYNC ERROR: " + event.reason);
-    });
+    // Critical Mobile Debugger: Catches errors and displays them on screen
+    (function () {
+      const errorBox = document.createElement('div');
+      errorBox.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:rgba(200,0,0,0.9);color:white;padding:10px;font-family:monospace;font-size:12px;z-index:9999;max-height:50vh;overflow:auto;display:none;white-space:pre-wrap;';
+      document.body.appendChild(errorBox);
+
+      const logError = (msg) => {
+        errorBox.style.display = 'block';
+        errorBox.innerText += "⚠️ " + msg + "\n";
+      };
+
+      window.onerror = function (msg, url, line, col, error) {
+        logError(`JS: ${msg}\nLocation: ${url}:${line}`);
+        return false;
+      };
+
+      window.addEventListener('unhandledrejection', function (event) {
+        logError(`ASYNC: ${event.reason}`);
+      });
+
+      // Also catch console.error
+      const originalConsoleError = console.error;
+      console.error = function (...args) {
+        logError(`CONSOLE: ${args.join(' ')}`);
+        originalConsoleError.apply(console, args);
+      };
+    })();
   </script>
 
   <script type="module" src="/src/main.jsx"></script>

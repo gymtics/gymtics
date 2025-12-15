@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useAuth, useData } from '../utils/store';
 import { useNavigate } from 'react-router-dom';
-import heic2any from 'heic2any';
+
 import Calendar from '../components/Calendar';
 import DonationModal from '../components/DonationModal';
 import FeedbackModal from '../components/FeedbackModal';
@@ -90,6 +90,9 @@ const DashboardHome = () => {
         if (file.type === 'image/heic' || file.type === 'image/heif' || file.name.toLowerCase().endsWith('.heic')) {
             try {
                 toast.info("Converting HEIC image... this may take a moment.");
+
+                // Dynamically import heic2any only when needed
+                const heic2any = (await import('heic2any')).default;
 
                 // Timeout Promise (30 seconds)
                 const timeout = new Promise((_, reject) =>
