@@ -296,9 +296,26 @@ const DashboardDay = () => {
         ex.name.toLowerCase().includes(workoutInput.toLowerCase())
     );
 
-    const filteredFoods = Object.entries(foodData).filter(([name, data]) =>
-        name.toLowerCase().includes(mealInput.toLowerCase())
-    );
+    const filteredFoods = React.useMemo(() => {
+        if (!mealInput) return [];
+        const lowerInput = mealInput.toLowerCase();
+        return Object.entries(foodData)
+            .filter(([name]) => name.toLowerCase().includes(lowerInput))
+            .sort(([a], [b]) => {
+                const aLower = a.toLowerCase();
+                const bLower = b.toLowerCase();
+                // Prioritize exact match
+                if (aLower === lowerInput) return -1;
+                if (bLower === lowerInput) return 1;
+                // Prioritize starts with
+                const aStarts = aLower.startsWith(lowerInput);
+                const bStarts = bLower.startsWith(lowerInput);
+                if (aStarts && !bStarts) return -1;
+                if (!aStarts && bStarts) return 1;
+                return 0;
+            })
+            .slice(0, 50); // Limit to 50 results for performance
+    }, [mealInput]);
 
     return (
         <div className="container" style={{ paddingBottom: '4rem', paddingTop: '2rem' }}>
@@ -688,15 +705,16 @@ const DashboardDay = () => {
                                     type="text"
                                     placeholder="Food item (e.g. Banana)"
                                     value={mealInput}
-                                    onChange={(e) => setMealInput(e.target.value)}
+                                    onChange={(e) => {
+                                        setMealInput(e.target.value);
+                                        if (e.target.value.length > 0) setShowFoodSuggestions(true);
+                                    }}
                                     onFocus={() => {
-                                        console.log("Input focused, mealInput:", mealInput);
                                         if (mealInput.length > 0) setShowFoodSuggestions(true);
                                     }}
                                     onBlur={() => setTimeout(() => setShowFoodSuggestions(false), 300)}
                                     style={{ width: '100%' }}
                                 />
-                                {console.log("Render check - Show:", showFoodSuggestions, "Filtered:", filteredFoods.length)}
                                 {showFoodSuggestions && filteredFoods.length > 0 && (
                                     <div style={{
                                         position: 'absolute',
@@ -704,11 +722,11 @@ const DashboardDay = () => {
                                         left: 0,
                                         right: 0,
                                         background: 'var(--bg-dark)',
-                                        border: '2px solid red', // DEBUG: Visible border
+                                        border: '1px solid var(--glass-border)',
                                         borderRadius: 'var(--radius-sm)',
-                                        maxHeight: '200px',
+                                        maxHeight: '250px',
                                         overflowY: 'auto',
-                                        zIndex: 9999, // DEBUG: Extreme z-index
+                                        zIndex: 1000,
                                         boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
                                     }}>
                                         {filteredFoods.map(([name, data], idx) => (
@@ -730,7 +748,7 @@ const DashboardDay = () => {
                                                     setShowFoodSuggestions(false);
                                                 }}
                                                 style={{
-                                                    padding: '10px',
+                                                    padding: '12px',
                                                     cursor: 'pointer',
                                                     borderBottom: '1px solid rgba(255,255,255,0.05)',
                                                     display: 'flex',
@@ -739,7 +757,7 @@ const DashboardDay = () => {
                                                 }}
                                                 className="hover-bg"
                                             >
-                                                <span>{name}</span>
+                                                <span style={{ fontWeight: '500' }}>{name}</span>
                                                 <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                                                     {data.calories} kcal / {data.unit}
                                                 </span>
