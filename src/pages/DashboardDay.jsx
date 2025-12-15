@@ -661,7 +661,7 @@ const DashboardDay = () => {
                 </div>
 
                 {/* Food Log */}
-                <div className="glass-panel animate-slide-up" style={{ padding: '2rem', animationDelay: '0.2s' }}>
+                <div className="glass-panel" style={{ padding: '2rem', overflow: 'visible' }}>
                     <h3 style={{ marginBottom: '1.5rem', color: 'var(--primary)' }}>Food Log</h3>
                     <form onSubmit={addMeal} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem' }}>
                         <div style={{ display: 'flex', gap: '0.5rem' }}>
