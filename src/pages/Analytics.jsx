@@ -297,19 +297,26 @@ const Analytics = () => {
                     background: 'linear-gradient(145deg, rgba(30,30,30,0.6) 0%, rgba(20,20,20,0.8) 100%)',
                     border: '1px solid rgba(255,255,255,0.05)'
                 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             <span style={{ fontSize: '1.5rem' }}>⚖️</span>
                             <h3 style={{ color: '#fff', margin: 0, fontWeight: '600' }}>Body Weight</h3>
                         </div>
-                        <form onSubmit={handleAddWeight} style={{ display: 'flex', gap: '0.5rem', background: 'rgba(0,0,0,0.2)', padding: '4px', borderRadius: '10px' }}>
+                        <form onSubmit={handleAddWeight} style={{
+                            display: 'flex',
+                            gap: '0.5rem',
+                            background: 'rgba(0,0,0,0.2)',
+                            padding: '4px',
+                            borderRadius: '10px',
+                            marginLeft: 'auto' // Force alignment to right even when wrapped
+                        }}>
                             <input
                                 type="number"
                                 placeholder="Add weight..."
                                 value={weightInput}
                                 onChange={(e) => setWeightInput(e.target.value)}
                                 style={{
-                                    width: '120px',
+                                    width: '100px', // Slightly reduced for mobile
                                     padding: '8px 12px',
                                     background: 'transparent',
                                     border: 'none',
@@ -402,7 +409,9 @@ const Analytics = () => {
                             background: 'rgba(0,0,0,0.2)',
                             padding: '6px',
                             borderRadius: '12px',
-                            flexWrap: 'wrap'
+                            flexWrap: 'wrap', // Allow wrapping but keep groups together
+                            justifyContent: 'flex-end',
+                            marginLeft: 'auto'
                         }}>
                             <select
                                 value={prExercise}
@@ -415,52 +424,57 @@ const Analytics = () => {
                                     fontSize: '0.9rem',
                                     outline: 'none',
                                     fontWeight: '500',
-                                    cursor: 'pointer'
+                                    cursor: 'pointer',
+                                    maxWidth: '120px'
                                 }}
                             >
                                 {['Bench Press', 'Squat', 'Deadlift', 'Pull Ups', 'Push Ups'].map(ex => (
                                     <option key={ex} value={ex} style={{ background: '#222' }}>{ex}</option>
                                 ))}
                             </select>
-                            <div style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.1)' }}></div>
-                            <input
-                                type="number"
-                                placeholder="kg"
-                                value={prWeight}
-                                onChange={(e) => setPrWeight(e.target.value)}
-                                style={{
-                                    width: '60px',
-                                    padding: '8px',
-                                    background: 'transparent',
-                                    border: 'none',
-                                    color: 'white',
-                                    fontSize: '0.9rem',
-                                    outline: 'none',
-                                    textAlign: 'center'
-                                }}
-                            />
-                            <input
-                                type="number"
-                                placeholder="reps"
-                                value={prReps}
-                                onChange={(e) => setPrReps(e.target.value)}
-                                style={{
-                                    width: '50px',
-                                    padding: '8px',
-                                    background: 'transparent',
-                                    border: 'none',
-                                    color: 'white',
-                                    fontSize: '0.9rem',
-                                    outline: 'none',
-                                    textAlign: 'center'
-                                }}
-                            />
-                            <button type="submit" className="btn-primary" style={{
-                                padding: '8px 16px',
-                                borderRadius: '8px',
-                                fontSize: '1rem',
-                                fontWeight: 'bold'
-                            }}>+</button>
+
+                            {/* Group Inputs and Button to prevent separation */}
+                            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                <div style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.1)' }}></div>
+                                <input
+                                    type="number"
+                                    placeholder="kg"
+                                    value={prWeight}
+                                    onChange={(e) => setPrWeight(e.target.value)}
+                                    style={{
+                                        width: '50px',
+                                        padding: '8px 4px',
+                                        background: 'transparent',
+                                        border: 'none',
+                                        color: 'white',
+                                        fontSize: '0.9rem',
+                                        outline: 'none',
+                                        textAlign: 'center'
+                                    }}
+                                />
+                                <input
+                                    type="number"
+                                    placeholder="reps"
+                                    value={prReps}
+                                    onChange={(e) => setPrReps(e.target.value)}
+                                    style={{
+                                        width: '40px',
+                                        padding: '8px 4px',
+                                        background: 'transparent',
+                                        border: 'none',
+                                        color: 'white',
+                                        fontSize: '0.9rem',
+                                        outline: 'none',
+                                        textAlign: 'center'
+                                    }}
+                                />
+                                <button type="submit" className="btn-primary" style={{
+                                    padding: '8px 12px',
+                                    borderRadius: '8px',
+                                    fontSize: '1rem',
+                                    fontWeight: 'bold'
+                                }}>+</button>
+                            </div>
                         </form>
                     </div>
 
