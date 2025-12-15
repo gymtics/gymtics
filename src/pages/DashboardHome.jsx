@@ -8,6 +8,8 @@ import FeedbackModal from '../components/FeedbackModal';
 import { format } from 'date-fns';
 import { useToast } from '../components/ToastProvider';
 
+import CropModal from '../components/CropModal';
+
 const DashboardHome = () => {
     const { user, logout, updateAvatar } = useAuth();
     const navigate = useNavigate();
@@ -18,6 +20,7 @@ const DashboardHome = () => {
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [isProcessing, setIsProcessing] = useState(false);
+    const [imageToCrop, setImageToCrop] = useState(null); // State for cropper
     const toast = useToast();
 
     const handleRemoveAvatar = () => {
@@ -35,109 +38,56 @@ const DashboardHome = () => {
         navigate('/');
     };
 
-    const resizeImage = (file) => {
-        return new Promise((resolve) => {
+    // Called when user selects a file from input
+    const onFileSelect = async (e) => {
+        if (e.target.files && e.target.files.length > 0) {
+            const file = e.target.files[0];
+
+            // Basic validation
+            if (!file.type.startsWith('image/')) {
+                toast.error("Please select an image file.");
+                return;
+            }
+
+            // Convert to Base64 to show in Cropper
             const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    let width = img.width;
-                    let height = img.height;
-                    const MAX_WIDTH = 800;
-                    const MAX_HEIGHT = 800;
-
-                    if (width > height) {
-                        if (width > MAX_WIDTH) {
-                            height *= MAX_WIDTH / width;
-                            width = MAX_WIDTH;
-                        }
-                    } else {
-                        if (height > MAX_HEIGHT) {
-                            width *= MAX_HEIGHT / height;
-                            height = MAX_HEIGHT;
-                        }
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    resolve(canvas.toDataURL('image/jpeg', 0.7)); // Compress to JPEG 70%
-                };
-                img.onerror = () => {
-                    toast.error("Error: Failed to load image data.");
-                    resolve(null);
-                };
-                img.src = e.target.result;
-            };
-            reader.onerror = () => {
-                toast.error("Error: Failed to read file.");
-                resolve(null);
-            };
+            reader.addEventListener('load', () => {
+                setImageToCrop(reader.result);
+                // Clear input so same file can be selected again if needed
+                e.target.value = null;
+            });
             reader.readAsDataURL(file);
-        });
+        }
     };
 
-    const handleAvatarUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        setIsProcessing(true);
-        let fileToProcess = file;
-
-        // Check for HEIC/HEIF
-        if (file.type === 'image/heic' || file.type === 'image/heif' || file.name.toLowerCase().endsWith('.heic')) {
-            try {
-                toast.info("Converting HEIC image... this may take a moment.");
-
-                // Dynamically import heic2any only when needed
-                const heic2any = (await import('heic2any')).default;
-
-                // Timeout Promise (30 seconds)
-                const timeout = new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error("HEIC conversion timed out (30s)")), 30000)
-                );
-
-                // Race between conversion and timeout
-                const convertedBlob = await Promise.race([
-                    heic2any({
-                        blob: file,
-                        toType: 'image/jpeg',
-                        quality: 0.8
-                    }),
-                    timeout
-                ]);
-
-                // Handle array return (if multiple images in HEIC)
-                fileToProcess = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
-                toast.success("HEIC conversion successful!");
-            } catch (err) {
-                console.error("HEIC conversion failed:", err);
-                toast.error(`HEIC Error: ${err.message}. Try a standard JPEG.`);
-                setIsProcessing(false);
-                return;
-            }
-        }
-
+    // Called when user clicks "Set Profile Picture" in Cropper
+    const onCropConfirm = async (croppedImageBase64) => {
         try {
-            const resizedImage = await resizeImage(fileToProcess);
+            setIsProcessing(true);
+            setImageToCrop(null); // Close modal
 
-            if (!resizedImage) {
-                toast.error("Failed to process image.");
-                setIsProcessing(false);
-                return;
-            }
-
-            await updateAvatar(resizedImage);
-            setIsProcessing(false);
+            // Upload the cropped base64 string
+            // updateAvatar expects { avatar: dataUrl } logic usually, or just the string if simplified
+            // Checking logic: updateAvatar calls API with { userId, avatar }
+            await updateAvatar(croppedImageBase64);
             toast.success("Profile picture updated!");
-        } catch (err) {
-            console.error("Image processing failed:", err);
-            toast.error("Failed to process image: " + err.message);
+
+        } catch (error) {
+            console.error("Avatar Update Failed:", error);
+            toast.error("Failed to update profile picture.");
+        } finally {
             setIsProcessing(false);
         }
     };
+
+    const onCropCancel = () => {
+        setImageToCrop(null);
+        setIsProcessing(false);
+    };
+
+    // ORIGINAL handleAvatarUpload REMOVED/REPLACED by onFileSelect + onCropConfirm flow
+    // Reuse resize logic if needed, but Cropper returns resized canvas usually.
+
 
     const handleDateSelect = (date) => {
         setSelectedDate(date);
@@ -232,13 +182,23 @@ const DashboardHome = () => {
                             </div>
                         )}
 
+                        {/* Hidden File Input */}
                         <input
                             type="file"
                             ref={fileInputRef}
                             style={{ display: 'none' }}
-                            accept="image/*, .heic, .heif"
-                            onChange={handleAvatarUpload}
+                            accept="image/*,.heic,.heif"
+                            onChange={onFileSelect}
                         />
+
+                        {/* Cropper Modal */}
+                        {imageToCrop && (
+                            <CropModal
+                                imageSrc={imageToCrop}
+                                onCancel={onCropCancel}
+                                onCropComplete={onCropConfirm}
+                            />
+                        )}
                     </div>
                     <div>
                         <h3 style={{ margin: 0 }}>Hello, <span className="text-gradient">{user?.username || 'User'}</span></h3>
