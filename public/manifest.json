@@ -2,6 +2,7 @@
     "name": "Gymtics",
     "short_name": "Gymtics",
     "start_url": "/",
+    "scope": "/",
     "display": "standalone",
     "background_color": "#0a0a0a",
     "theme_color": "#00f2ea",
