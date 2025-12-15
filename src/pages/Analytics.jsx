@@ -58,6 +58,17 @@ const Analytics = () => {
     // 1. Gym Consistency Data
     const [timeRange, setTimeRange] = useState('7d');
 
+    // Leaderboard Data
+    const [leaders, setLeaders] = useState([]);
+    useEffect(() => {
+        fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5001/api'}/leaderboard`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) setLeaders(data.leaderboard.slice(0, 5)); // Top 5 Preview
+            })
+            .catch(err => console.error(err));
+    }, []);
+
     const getConsistencyData = () => {
         const today = new Date();
         let data = [];
@@ -207,18 +218,40 @@ const Analytics = () => {
                     <h2 className="text-gradient" style={{ margin: 0, textAlign: 'center', fontSize: '2rem', letterSpacing: '-0.5px' }}>
                         Analytics
                     </h2>
-                    <div style={{
-                        marginTop: '0.5rem',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        background: 'rgba(255, 165, 0, 0.15)',
-                        border: '1px solid rgba(255, 165, 0, 0.3)',
-                        padding: '4px 12px',
-                        borderRadius: '20px'
-                    }}>
-                        <span style={{ fontSize: '1.2rem' }}>💪</span>
-                        <span style={{ color: '#FFD700', fontWeight: 'bold' }}>{currentStreak} Day Streak</span>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                        <div style={{
+                            marginTop: '0.5rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            background: 'rgba(255, 165, 0, 0.15)',
+                            border: '1px solid rgba(255, 165, 0, 0.3)',
+                            padding: '4px 12px',
+                            borderRadius: '20px'
+                        }}>
+                            <span style={{ fontSize: '1.2rem' }}>💪</span>
+                            <span style={{ color: '#FFD700', fontWeight: 'bold' }}>{currentStreak} Day Streak</span>
+                        </div>
+
+                        <button
+                            onClick={() => navigate('/leaderboard')}
+                            style={{
+                                marginTop: '0.5rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                background: 'rgba(50, 205, 50, 0.15)',
+                                border: '1px solid rgba(50, 205, 50, 0.3)',
+                                padding: '4px 12px',
+                                borderRadius: '20px',
+                                color: '#4ade80',
+                                fontWeight: 'bold',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            <span>🏆</span>
+                            <span>Leaderboard</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -233,7 +266,7 @@ const Analytics = () => {
                 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <span style={{ fontSize: '1.5rem' }}>🔥</span>
+                            <span style={{ fontSize: '1.5rem' }}>💪</span>
                             <h3 style={{ color: '#fff', margin: 0, fontWeight: '600' }}>Consistency</h3>
                         </div>
                         <div style={{ display: 'flex', gap: '0.25rem', background: 'rgba(0,0,0,0.3)', padding: '4px', borderRadius: '12px' }}>
@@ -389,167 +422,202 @@ const Analytics = () => {
                     )}
                 </div>
 
-                {/* PR Tracker */}
-                <div className="glass-panel animate-slide-up" style={{
-                    animationDelay: '0.2s',
-                    background: 'linear-gradient(145deg, rgba(30,30,30,0.6) 0%, rgba(20,20,20,0.8) 100%)',
-                    border: '1px solid rgba(255,255,255,0.05)'
-                }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <span style={{ fontSize: '1.5rem' }}>🏆</span>
-                            <h3 style={{ color: '#fff', margin: 0, fontWeight: '600' }}>Personal Records</h3>
-                        </div>
+            </div>
 
-                        {/* Manual PR Entry Form */}
-                        <form onSubmit={addManualPR} style={{
-                            display: 'flex',
-                            gap: '0.5rem',
-                            alignItems: 'center',
-                            background: 'rgba(0,0,0,0.2)',
-                            padding: '6px',
-                            borderRadius: '12px',
-                            flexWrap: 'wrap', // Allow wrapping but keep groups together
-                            justifyContent: 'flex-start' // Align to left
-                        }}>
-                            <select
-                                value={prExercise}
-                                onChange={(e) => setPrExercise(e.target.value)}
+            {/* Mini Leaderboard */}
+            <div className="glass-panel animate-slide-up" style={{
+                animationDelay: '0.1s',
+                background: 'linear-gradient(145deg, rgba(30,30,30,0.6) 0%, rgba(20,20,20,0.8) 100%)',
+                border: '1px solid rgba(255,255,255,0.05)'
+            }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span style={{ fontSize: '1.5rem' }}>👑</span>
+                        <h3 style={{ color: '#fff', margin: 0, fontWeight: '600' }}>Top Athletes</h3>
+                    </div>
+                    <button onClick={() => navigate('/leaderboard')} style={{ color: 'var(--primary)', background: 'none', border: 'none', fontSize: '0.9rem', cursor: 'pointer' }}>View All →</button>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {leaders.length > 0 ? leaders.map((leader, i) => (
+                        <div key={leader.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <span style={{ fontWeight: 'bold', color: i === 0 ? '#FFD700' : i === 1 ? '#C0C0C0' : i === 2 ? '#CD7F32' : 'white', width: '20px' }}>#{i + 1}</span>
+                                <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#333', backgroundImage: leader.avatar ? `url(${leader.avatar})` : 'none', backgroundSize: 'cover', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem' }}>{!leader.avatar && leader.username[0]}</div>
+                                <span style={{ color: 'white', fontSize: '0.9rem' }}>{leader.username}</span>
+                            </div>
+                            <div style={{ display: 'flex', gap: '15px', fontSize: '0.8rem' }}>
+                                <span style={{ color: '#4ade80' }}>Gym: {leader.gymScore}</span>
+                                <span style={{ color: '#facc15' }}>Diet: {leader.dietScore}</span>
+                            </div>
+                        </div>
+                    )) : (
+                        <p style={{ color: 'var(--text-muted)', textAlign: 'center', fontSize: '0.9rem' }}>Loading rankings...</p>
+                    )}
+                </div>
+            </div>
+
+            {/* PR Tracker */}
+            <div className="glass-panel animate-slide-up" style={{
+                animationDelay: '0.2s',
+                background: 'linear-gradient(145deg, rgba(30,30,30,0.6) 0%, rgba(20,20,20,0.8) 100%)',
+                border: '1px solid rgba(255,255,255,0.05)'
+            }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span style={{ fontSize: '1.5rem' }}>🏆</span>
+                        <h3 style={{ color: '#fff', margin: 0, fontWeight: '600' }}>Personal Records</h3>
+                    </div>
+
+                    {/* Manual PR Entry Form */}
+                    <form onSubmit={addManualPR} style={{
+                        display: 'flex',
+                        gap: '0.5rem',
+                        alignItems: 'center',
+                        background: 'rgba(0,0,0,0.2)',
+                        padding: '6px',
+                        borderRadius: '12px',
+                        flexWrap: 'wrap', // Allow wrapping but keep groups together
+                        justifyContent: 'flex-start' // Align to left
+                    }}>
+                        <select
+                            value={prExercise}
+                            onChange={(e) => setPrExercise(e.target.value)}
+                            style={{
+                                background: 'transparent',
+                                border: 'none',
+                                color: 'white',
+                                padding: '8px',
+                                fontSize: '0.9rem',
+                                outline: 'none',
+                                fontWeight: '500',
+                                cursor: 'pointer',
+                                maxWidth: '120px'
+                            }}
+                        >
+                            {['Bench Press', 'Squat', 'Deadlift', 'Pull Ups', 'Push Ups'].map(ex => (
+                                <option key={ex} value={ex} style={{ background: '#222' }}>{ex}</option>
+                            ))}
+                        </select>
+
+                        {/* Group Inputs and Button to prevent separation */}
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                            <div style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.1)' }}></div>
+                            <input
+                                type="number"
+                                placeholder="kg"
+                                value={prWeight}
+                                onChange={(e) => setPrWeight(e.target.value)}
                                 style={{
+                                    width: '50px',
+                                    padding: '8px 4px',
                                     background: 'transparent',
                                     border: 'none',
                                     color: 'white',
-                                    padding: '8px',
                                     fontSize: '0.9rem',
                                     outline: 'none',
-                                    fontWeight: '500',
-                                    cursor: 'pointer',
-                                    maxWidth: '120px'
+                                    textAlign: 'center'
                                 }}
-                            >
-                                {['Bench Press', 'Squat', 'Deadlift', 'Pull Ups', 'Push Ups'].map(ex => (
-                                    <option key={ex} value={ex} style={{ background: '#222' }}>{ex}</option>
-                                ))}
-                            </select>
-
-                            {/* Group Inputs and Button to prevent separation */}
-                            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                                <div style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.1)' }}></div>
-                                <input
-                                    type="number"
-                                    placeholder="kg"
-                                    value={prWeight}
-                                    onChange={(e) => setPrWeight(e.target.value)}
-                                    style={{
-                                        width: '50px',
-                                        padding: '8px 4px',
-                                        background: 'transparent',
-                                        border: 'none',
-                                        color: 'white',
-                                        fontSize: '0.9rem',
-                                        outline: 'none',
-                                        textAlign: 'center'
-                                    }}
-                                />
-                                <input
-                                    type="number"
-                                    placeholder="reps"
-                                    value={prReps}
-                                    onChange={(e) => setPrReps(e.target.value)}
-                                    style={{
-                                        width: '40px',
-                                        padding: '8px 4px',
-                                        background: 'transparent',
-                                        border: 'none',
-                                        color: 'white',
-                                        fontSize: '0.9rem',
-                                        outline: 'none',
-                                        textAlign: 'center'
-                                    }}
-                                />
-                                <button type="submit" className="btn-primary" style={{
-                                    padding: '8px 12px',
-                                    borderRadius: '8px',
-                                    fontSize: '1rem',
-                                    fontWeight: 'bold'
-                                }}>+</button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem' }}>
-                        {['Bench Press', 'Squat', 'Deadlift', 'Pull Ups', 'Push Ups'].map(exercise => {
-                            const record = getMaxWeight(exercise);
-                            const isSet = record.weight > 0;
-                            return (
-                                <div key={exercise} style={{
-                                    background: isSet
-                                        ? 'linear-gradient(145deg, rgba(255, 215, 0, 0.1) 0%, rgba(0,0,0,0) 100%)'
-                                        : 'rgba(255,255,255,0.03)',
-                                    padding: '1.2rem',
-                                    borderRadius: '16px',
-                                    textAlign: 'center',
-                                    border: isSet ? '1px solid rgba(255, 215, 0, 0.2)' : '1px solid rgba(255,255,255,0.05)',
-                                    transition: 'transform 0.2s',
-                                    cursor: 'default'
+                            />
+                            <input
+                                type="number"
+                                placeholder="reps"
+                                value={prReps}
+                                onChange={(e) => setPrReps(e.target.value)}
+                                style={{
+                                    width: '40px',
+                                    padding: '8px 4px',
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: 'white',
+                                    fontSize: '0.9rem',
+                                    outline: 'none',
+                                    textAlign: 'center'
                                 }}
-                                    onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                                    onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-                                >
-                                    <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                                        {exercise}
-                                    </div>
-                                    <div style={{
-                                        fontSize: '1.8rem',
-                                        fontWeight: '800',
-                                        color: isSet ? '#fff' : 'rgba(255,255,255,0.2)',
-                                        textShadow: isSet ? '0 0 20px rgba(255, 215, 0, 0.3)' : 'none'
-                                    }}>
-                                        {record.weight}
-                                        <span style={{ fontSize: '0.9rem', color: isSet ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.1)', marginLeft: '4px', fontWeight: 'normal' }}>kg</span>
-                                    </div>
-                                    <div style={{ fontSize: '0.8rem', color: isSet ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.1)', marginTop: '4px' }}>
-                                        {record.reps} reps
-                                    </div>
-
-                                    {isSet && (
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                toast.confirm(`Clear ${exercise} record?`, () => {
-                                                    deletePR(exercise);
-                                                    toast.success(`Cleared ${exercise} record`);
-                                                });
-                                            }}
-                                            style={{
-                                                marginTop: '10px',
-                                                background: 'rgba(255, 68, 68, 0.2)',
-                                                border: '1px solid rgba(255, 68, 68, 0.3)',
-                                                color: '#ff4444',
-                                                borderRadius: '50%',
-                                                width: '24px',
-                                                height: '24px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                cursor: 'pointer',
-                                                fontSize: '0.8rem',
-                                                marginLeft: 'auto',
-                                                marginRight: 'auto'
-                                            }}
-                                            title="Clear Record"
-                                        >
-                                            ✕
-                                        </button>
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
+                            />
+                            <button type="submit" className="btn-primary" style={{
+                                padding: '8px 12px',
+                                borderRadius: '8px',
+                                fontSize: '1rem',
+                                fontWeight: 'bold'
+                            }}>+</button>
+                        </div>
+                    </form>
                 </div>
 
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem' }}>
+                    {['Bench Press', 'Squat', 'Deadlift', 'Pull Ups', 'Push Ups'].map(exercise => {
+                        const record = getMaxWeight(exercise);
+                        const isSet = record.weight > 0;
+                        return (
+                            <div key={exercise} style={{
+                                background: isSet
+                                    ? 'linear-gradient(145deg, rgba(255, 215, 0, 0.1) 0%, rgba(0,0,0,0) 100%)'
+                                    : 'rgba(255,255,255,0.03)',
+                                padding: '1.2rem',
+                                borderRadius: '16px',
+                                textAlign: 'center',
+                                border: isSet ? '1px solid rgba(255, 215, 0, 0.2)' : '1px solid rgba(255,255,255,0.05)',
+                                transition: 'transform 0.2s',
+                                cursor: 'default'
+                            }}
+                                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                            >
+                                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                    {exercise}
+                                </div>
+                                <div style={{
+                                    fontSize: '1.8rem',
+                                    fontWeight: '800',
+                                    color: isSet ? '#fff' : 'rgba(255,255,255,0.2)',
+                                    textShadow: isSet ? '0 0 20px rgba(255, 215, 0, 0.3)' : 'none'
+                                }}>
+                                    {record.weight}
+                                    <span style={{ fontSize: '0.9rem', color: isSet ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.1)', marginLeft: '4px', fontWeight: 'normal' }}>kg</span>
+                                </div>
+                                <div style={{ fontSize: '0.8rem', color: isSet ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.1)', marginTop: '4px' }}>
+                                    {record.reps} reps
+                                </div>
+
+                                {isSet && (
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            toast.confirm(`Clear ${exercise} record?`, () => {
+                                                deletePR(exercise);
+                                                toast.success(`Cleared ${exercise} record`);
+                                            });
+                                        }}
+                                        style={{
+                                            marginTop: '10px',
+                                            background: 'rgba(255, 68, 68, 0.2)',
+                                            border: '1px solid rgba(255, 68, 68, 0.3)',
+                                            color: '#ff4444',
+                                            borderRadius: '50%',
+                                            width: '24px',
+                                            height: '24px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            cursor: 'pointer',
+                                            fontSize: '0.8rem',
+                                            marginLeft: 'auto',
+                                            marginRight: 'auto'
+                                        }}
+                                        title="Clear Record"
+                                    >
+                                        ✕
+                                    </button>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
+
         </div>
+        </div >
     );
 };
 
