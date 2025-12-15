@@ -317,6 +317,7 @@ const Analytics = () => {
 
                 {/* Body Weight Tracker */}
                 <div className="glass-panel animate-slide-up" style={{
+                    marginBottom: '2rem',
                     animationDelay: '0.1s',
                     background: 'linear-gradient(145deg, rgba(30,30,30,0.6) 0%, rgba(20,20,20,0.8) 100%)',
                     border: '1px solid rgba(255,255,255,0.05)'
@@ -419,7 +420,8 @@ const Analytics = () => {
 
             {/* PR Tracker */}
             <div className="glass-panel animate-slide-up" style={{
-                animationDelay: '0.2s',
+                marginBottom: '2rem',
+                animationDelay: '0s',
                 background: 'linear-gradient(145deg, rgba(30,30,30,0.6) 0%, rgba(20,20,20,0.8) 100%)',
                 border: '1px solid rgba(255,255,255,0.05)'
             }}>
