@@ -448,6 +448,9 @@ app.post('/api/data/log', async (req, res) => {
                 frontendId: m.id,
                 type: m.type,
                 text: m.text,
+                quantity: m.quantity, // Add missing field
+                unit: m.unit,         // Add missing field
+                calories: m.calories, // Add missing field
                 completed: m.completed
             }));
             await MealItem.bulkCreate(mealItems);
