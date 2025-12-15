@@ -7,6 +7,30 @@ import { format, parseISO } from 'date-fns';
 import { exerciseLibrary, getCategories } from '../utils/exercises';
 import { foodData, calculateCalories } from '../utils/foodData';
 import { useToast } from '../components/ToastProvider';
+import confetti from 'canvas-confetti';
+
+// Sad Rain CSS (Injected dynamically)
+const sadRainStyle = `
+@keyframes fall {
+    0% { transform: translateY(-10vh); opacity: 0; }
+    10% { opacity: 1; }
+    100% { transform: translateY(110vh); opacity: 0; }
+}
+.sad-emoji {
+    position: fixed;
+    top: -10vh;
+    font-size: 2rem;
+    pointer-events: none;
+    z-index: 9999;
+    animation: fall linear forwards;
+}
+`;
+if (!document.getElementById('sad-rain-style')) {
+    const style = document.createElement('style');
+    style.id = 'sad-rain-style';
+    style.innerHTML = sadRainStyle;
+    document.head.appendChild(style);
+}
 
 const DashboardDay = () => {
     const { date } = useParams();
@@ -65,10 +89,41 @@ const DashboardDay = () => {
     const [clipboard, setClipboard] = useLocalStorage('gym_app_clipboard', null);
 
     // Handlers
+    const triggerSadRain = () => {
+        const emojis = ['😢', '😭', '💔', '🌧️', '🥺'];
+        const container = document.body;
+
+        for (let i = 0; i < 20; i++) {
+            const emoji = document.createElement('div');
+            emoji.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+            emoji.className = 'sad-emoji';
+            emoji.style.left = Math.random() * 100 + 'vw';
+            emoji.style.animationDuration = (Math.random() * 2 + 2) + 's'; // 2-4s
+            emoji.style.fontSize = (Math.random() * 1.5 + 1) + 'rem';
+            container.appendChild(emoji);
+
+            // Cleanup
+            setTimeout(() => {
+                emoji.remove();
+            }, 4000);
+        }
+    };
+
     const toggleGymVisited = () => {
         let nextState;
-        if (currentData.gymVisited === null || currentData.gymVisited === undefined) nextState = true; // Unmarked -> Yes
-        else if (currentData.gymVisited === true) nextState = false; // Yes -> No
+        if (currentData.gymVisited === null || currentData.gymVisited === undefined) {
+            nextState = true;
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#4ade80', '#ffffff', '#FFD700']
+            });
+        }
+        else if (currentData.gymVisited === true) {
+            nextState = false;
+            triggerSadRain();
+        }
         else nextState = null; // No -> Unmarked
 
         updateHistory(date, { ...currentData, gymVisited: nextState });

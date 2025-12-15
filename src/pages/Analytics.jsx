@@ -18,6 +18,35 @@ const Analytics = () => {
 
 
 
+    // Calculate Streak
+    const getStreak = () => {
+        const today = new Date();
+        // Normalize today to string
+        const todayStr = format(today, 'yyyy-MM-dd');
+
+        let streak = 0;
+        let currentDate = today;
+
+        // If today is marked, start counting from today. 
+        // If not, start check from yesterday (to see if streak is active but just not logged today yet)
+        if (!history[todayStr]?.gymVisited) {
+            currentDate.setDate(currentDate.getDate() - 1);
+        }
+
+        while (true) {
+            const dateStr = format(currentDate, 'yyyy-MM-dd');
+            if (history[dateStr]?.gymVisited) {
+                streak++;
+                currentDate.setDate(currentDate.getDate() - 1);
+            } else {
+                break;
+            }
+        }
+        return streak;
+    };
+
+    const currentStreak = getStreak();
+
     if (isLoading) {
         return (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'var(--text-muted)' }}>
@@ -174,9 +203,24 @@ const Analytics = () => {
                 >
                     ← Back
                 </button>
-                <h2 className="text-gradient" style={{ margin: 0, textAlign: 'center', fontSize: '2rem', letterSpacing: '-0.5px' }}>
-                    Analytics
-                </h2>
+                <div className="flex-center" style={{ flexDirection: 'column' }}>
+                    <h2 className="text-gradient" style={{ margin: 0, textAlign: 'center', fontSize: '2rem', letterSpacing: '-0.5px' }}>
+                        Analytics
+                    </h2>
+                    <div style={{
+                        marginTop: '0.5rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        background: 'rgba(255, 165, 0, 0.15)',
+                        border: '1px solid rgba(255, 165, 0, 0.3)',
+                        padding: '4px 12px',
+                        borderRadius: '20px'
+                    }}>
+                        <span style={{ fontSize: '1.2rem' }}>🔥</span>
+                        <span style={{ color: '#FFD700', fontWeight: 'bold' }}>{currentStreak} Day Streak</span>
+                    </div>
+                </div>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
