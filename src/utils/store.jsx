@@ -137,44 +137,84 @@ const DataContext = createContext(null);
 
 export const DataProvider = ({ children }) => {
   const { user } = useAuth();
+
+  // Helper to load from storage safely
+  const loadFromStorage = (key, defaultVal) => {
+    if (!user?.id) return defaultVal;
+    try {
+      const saved = localStorage.getItem(`${key}_${user.id}`);
+      return saved ? JSON.parse(saved) : defaultVal;
+    } catch (e) {
+      console.error(`Failed to load ${key}`, e);
+      return defaultVal;
+    }
+  };
+
   const [history, setHistory] = useState({});
   const [weightLog, setWeightLog] = useState([]);
   const [prs, setPrs] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch Data on Load or User Change
+  // Initialize from LocalStorage when user changes
   useEffect(() => {
     if (user?.id) {
-      setIsLoading(true);
+      setHistory(loadFromStorage('gym_history', {}));
+      setWeightLog(loadFromStorage('gym_weight', []));
+      setPrs(loadFromStorage('gym_prs', {}));
+    } else {
+      setHistory({});
+      setWeightLog([]);
+      setPrs({});
+    }
+  }, [user?.id]);
+
+  // Fetch Data on Load or User Change (Background Sync)
+  useEffect(() => {
+    if (user?.id) {
+      // Don't set loading true here if we already have data, to keep UI snappy
+      // But we can keep it if we want to show a spinner. 
+      // Better: Only show spinner if NO local data.
+      const hasLocalData = localStorage.getItem(`gym_history_${user.id}`);
+      if (!hasLocalData) setIsLoading(true);
+
       Promise.all([
         fetch(`${API_URL}/data/history/${user.id}`).then(res => res.json()),
         fetch(`${API_URL}/data/weight/${user.id}`).then(res => res.json()),
         fetch(`${API_URL}/data/prs/${user.id}`).then(res => res.json())
       ])
         .then(([historyData, weightData, prsData]) => {
-          if (historyData.success) setHistory(historyData.history);
-          if (weightData.success) setWeightLog(weightData.logs);
-          if (prsData.success) setPrs(prsData.prs);
+          if (historyData.success) {
+            setHistory(historyData.history);
+            localStorage.setItem(`gym_history_${user.id}`, JSON.stringify(historyData.history));
+          }
+          if (weightData.success) {
+            setWeightLog(weightData.logs);
+            localStorage.setItem(`gym_weight_${user.id}`, JSON.stringify(weightData.logs));
+          }
+          if (prsData.success) {
+            setPrs(prsData.prs);
+            localStorage.setItem(`gym_prs_${user.id}`, JSON.stringify(prsData.prs));
+          }
         })
         .catch(err => {
-          console.error("Failed to fetch data:", err);
-          setError("Failed to load data. Please check your connection.");
-          setHistory({}); // Prevent undefined history
+          console.error("Failed to fetch data (Offline Mode):", err);
+          setError("Offline Mode: Changes saved locally.");
+          // CRITICAL: Do NOT wipe state here. Keep local data.
         })
         .finally(() => setIsLoading(false));
     } else {
-      // If no user, reset data but stop loading
-      setHistory({});
-      setWeightLog([]);
-      setPrs({});
       setIsLoading(false);
     }
   }, [user?.id]);
 
   const updateHistory = async (date, newData) => {
-    // Optimistic Update
-    setHistory(prev => ({ ...prev, [date]: newData }));
+    // Optimistic Update & Local Persistence
+    setHistory(prev => {
+      const updated = { ...prev, [date]: newData };
+      if (user?.id) localStorage.setItem(`gym_history_${user.id}`, JSON.stringify(updated));
+      return updated;
+    });
 
     // Sync to Server
     if (user?.id) {
@@ -191,16 +231,17 @@ export const DataProvider = ({ children }) => {
           })
         });
       } catch (err) {
-        console.error("Failed to save log:", err);
+        console.error("Failed to save log (saved locally):", err);
       }
     }
   };
 
   const addWeight = async (date, weight) => {
-    // Check if weight already exists for this date, if so, replace it
     setWeightLog(prev => {
       const filtered = prev.filter(log => log.date !== date);
-      return [...filtered, { date, weight: parseFloat(weight) }].sort((a, b) => new Date(a.date) - new Date(b.date));
+      const updated = [...filtered, { date, weight: parseFloat(weight) }].sort((a, b) => new Date(a.date) - new Date(b.date));
+      if (user?.id) localStorage.setItem(`gym_weight_${user.id}`, JSON.stringify(updated));
+      return updated;
     });
 
     if (user?.id) {
@@ -211,13 +252,17 @@ export const DataProvider = ({ children }) => {
           body: JSON.stringify({ userId: user.id, date, weight })
         });
       } catch (err) {
-        console.error("Failed to save weight:", err);
+        console.error("Failed to save weight (saved locally):", err);
       }
     }
   };
 
   const deleteWeight = async (date) => {
-    setWeightLog(prev => prev.filter(log => log.date !== date));
+    setWeightLog(prev => {
+      const updated = prev.filter(log => log.date !== date);
+      if (user?.id) localStorage.setItem(`gym_weight_${user.id}`, JSON.stringify(updated));
+      return updated;
+    });
 
     if (user?.id) {
       try {
@@ -227,13 +272,17 @@ export const DataProvider = ({ children }) => {
           body: JSON.stringify({ userId: user.id, date })
         });
       } catch (err) {
-        console.error("Failed to delete weight:", err);
+        console.error("Failed to delete weight (saved locally):", err);
       }
     }
   };
 
   const updatePR = async (exercise, weight, reps) => {
-    setPrs(prev => ({ ...prev, [exercise]: { weight, reps } }));
+    setPrs(prev => {
+      const updated = { ...prev, [exercise]: { weight, reps } };
+      if (user?.id) localStorage.setItem(`gym_prs_${user.id}`, JSON.stringify(updated));
+      return updated;
+    });
 
     if (user?.id) {
       try {
@@ -243,16 +292,18 @@ export const DataProvider = ({ children }) => {
           body: JSON.stringify({ userId: user.id, exercise, weight, reps })
         });
       } catch (err) {
-        console.error("Failed to save PR:", err);
+        console.error("Failed to save PR (saved locally):", err);
       }
     }
   };
 
   const deletePR = async (exercise) => {
-    // Optimistic Update
-    const newPrs = { ...prs };
-    delete newPrs[exercise];
-    setPrs(newPrs);
+    setPrs(prev => {
+      const newPrs = { ...prev };
+      delete newPrs[exercise];
+      if (user?.id) localStorage.setItem(`gym_prs_${user.id}`, JSON.stringify(newPrs));
+      return newPrs;
+    });
 
     if (user?.id) {
       try {
@@ -263,7 +314,6 @@ export const DataProvider = ({ children }) => {
         });
       } catch (err) {
         console.error("Failed to delete PR:", err);
-        // Revert on failure could be added here
       }
     }
   };
