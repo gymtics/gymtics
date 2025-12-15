@@ -11,7 +11,6 @@ const DashboardHome = lazy(() => import('./pages/DashboardHome'));
 const DashboardDay = lazy(() => import('./pages/DashboardDay'));
 const Analytics = lazy(() => import('./pages/Analytics'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
-const AIFormCheck = lazy(() => import('./pages/AIFormCheck')); // AI Feature
 const Leaderboard = lazy(() => import('./pages/Leaderboard'));
 
 // Loading Component
@@ -58,6 +57,7 @@ const App = () => {
                 <Routes>
                   <Route path="/" element={<WelcomePage />} />
                   <Route path="/auth" element={<AuthPages />} />
+                  <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
                   <Route
                     path="/dashboard"
                     element={
