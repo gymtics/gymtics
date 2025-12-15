@@ -217,7 +217,7 @@ const Analytics = () => {
                         padding: '4px 12px',
                         borderRadius: '20px'
                     }}>
-                        <span style={{ fontSize: '1.2rem' }}>🔥</span>
+                        <span style={{ fontSize: '1.2rem' }}>💪</span>
                         <span style={{ color: '#FFD700', fontWeight: 'bold' }}>{currentStreak} Day Streak</span>
                     </div>
                 </div>
