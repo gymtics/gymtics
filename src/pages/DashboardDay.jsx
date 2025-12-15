@@ -74,6 +74,7 @@ const DashboardDay = () => {
     const [mealUnit, setMealUnit] = useState('100g');
 
     const [showSuggestions, setShowSuggestions] = useState(false);
+    const [showFoodSuggestions, setShowFoodSuggestions] = useState(false);
 
     // Clipboard Data
     const [clipboard, setClipboard] = useLocalStorage('gym_app_clipboard', null);
@@ -292,6 +293,10 @@ const DashboardDay = () => {
 
     const filteredExercises = exerciseLibrary.filter(ex =>
         ex.name.toLowerCase().includes(workoutInput.toLowerCase())
+    );
+
+    const filteredFoods = Object.entries(foodData).filter(([name, data]) =>
+        name.toLowerCase().includes(mealInput.toLowerCase())
     );
 
     return (
@@ -677,13 +682,66 @@ const DashboardDay = () => {
                                 <option>Dinner</option>
                                 <option>Snack</option>
                             </select>
-                            <input
-                                type="text"
-                                placeholder="Food item"
-                                value={mealInput}
-                                onChange={(e) => setMealInput(e.target.value)}
-                                style={{ flex: 2 }}
-                            />
+                            <div style={{ flex: 2, position: 'relative' }}>
+                                <input
+                                    type="text"
+                                    placeholder="Food item (e.g. Banana)"
+                                    value={mealInput}
+                                    onChange={(e) => setMealInput(e.target.value)}
+                                    onFocus={() => mealInput.length > 0 && setShowFoodSuggestions(true)}
+                                    onBlur={() => setTimeout(() => setShowFoodSuggestions(false), 200)}
+                                    style={{ width: '100%' }}
+                                />
+                                {showFoodSuggestions && filteredFoods.length > 0 && (
+                                    <div style={{
+                                        position: 'absolute',
+                                        top: '100%',
+                                        left: 0,
+                                        right: 0,
+                                        background: 'var(--bg-dark)',
+                                        border: '1px solid var(--glass-border)',
+                                        borderRadius: 'var(--radius-sm)',
+                                        maxHeight: '200px',
+                                        overflowY: 'auto',
+                                        zIndex: 10
+                                    }}>
+                                        {filteredFoods.map(([name, data], idx) => (
+                                            <div
+                                                key={idx}
+                                                onClick={() => {
+                                                    setMealInput(name);
+                                                    // Auto-set unit if possible (default to 100g/unit)
+                                                    if (data.unit.includes('100g')) {
+                                                        setMealUnit('100g');
+                                                        setMealQuantity('100');
+                                                    } else if (data.unit.includes('100ml')) {
+                                                        setMealUnit('100ml');
+                                                        setMealQuantity('100');
+                                                    } else {
+                                                        setMealUnit('1 unit');
+                                                        setMealQuantity('1');
+                                                    }
+                                                    setShowFoodSuggestions(false);
+                                                }}
+                                                style={{
+                                                    padding: '10px',
+                                                    cursor: 'pointer',
+                                                    borderBottom: '1px solid rgba(255,255,255,0.05)',
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center'
+                                                }}
+                                                className="hover-bg"
+                                            >
+                                                <span>{name}</span>
+                                                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                                                    {data.calories} kcal / {data.unit}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                         <div style={{ display: 'flex', gap: '0.5rem' }}>
                             <input
