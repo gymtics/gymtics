@@ -77,7 +77,7 @@ const Leaderboard = () => {
                     <div className="glass-panel" style={{ padding: '0', overflow: 'hidden' }}>
                         <div style={{
                             display: 'grid',
-                            gridTemplateColumns: '50px 2fr 1fr 1fr 1fr',
+                            gridTemplateColumns: '50px 2fr 1fr 1fr 1fr 1fr',
                             padding: '15px',
                             background: 'rgba(255,255,255,0.05)',
                             borderBottom: '1px solid var(--glass-border)',
@@ -88,6 +88,7 @@ const Leaderboard = () => {
                             <span>#</span>
                             <span>Athlete</span>
                             <span style={{ textAlign: 'center' }}>Gym</span>
+                            <span style={{ textAlign: 'center' }}>Wkt</span>
                             <span style={{ textAlign: 'center' }}>Diet</span>
                             <span style={{ textAlign: 'right' }}>Total</span>
                         </div>
@@ -95,7 +96,7 @@ const Leaderboard = () => {
                         {leaders.map((leader, index) => (
                             <div key={leader.id} style={{
                                 display: 'grid',
-                                gridTemplateColumns: '50px 2fr 1fr 1fr 1fr',
+                                gridTemplateColumns: '50px 2fr 1fr 1fr 1fr 1fr',
                                 padding: '15px',
                                 borderBottom: '1px solid rgba(255,255,255,0.02)',
                                 alignItems: 'center',
@@ -128,6 +129,7 @@ const Leaderboard = () => {
                                     </span>
                                 </div>
                                 <span style={{ textAlign: 'center', color: '#4ade80' }}>+{leader.gymScore}</span>
+                                <span style={{ textAlign: 'center', color: '#60a5fa' }}>+{leader.workoutScore}</span>
                                 <span style={{ textAlign: 'center', color: '#facc15' }}>+{leader.dietScore}</span>
                                 <span style={{ textAlign: 'right', fontWeight: 'bold', fontSize: '1.1rem' }}>{leader.totalScore}</span>
                             </div>
@@ -163,7 +165,7 @@ const Leaderboard = () => {
                         }}>
                             <div style={{
                                 display: 'grid',
-                                gridTemplateColumns: '50px 2fr 1fr 1fr 1fr',
+                                gridTemplateColumns: '50px 2fr 1fr 1fr 1fr 1fr',
                                 padding: '15px',
                                 alignItems: 'center',
                                 background: 'rgba(255, 215, 0, 0.1)'
@@ -191,6 +193,7 @@ const Leaderboard = () => {
                                     </span>
                                 </div>
                                 <span style={{ textAlign: 'center', color: '#4ade80' }}>+{userRank.gymScore}</span>
+                                <span style={{ textAlign: 'center', color: '#60a5fa' }}>+{userRank.workoutScore}</span>
                                 <span style={{ textAlign: 'center', color: '#facc15' }}>+{userRank.dietScore}</span>
                                 <span style={{ textAlign: 'right', fontWeight: 'bold', fontSize: '1.1rem' }}>{userRank.totalScore}</span>
                             </div>

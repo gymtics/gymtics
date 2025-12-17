@@ -623,6 +623,9 @@ app.get('/api/leaderboard', async (req, res) => {
                 include: [{
                     model: MealItem,
                     attributes: ['id', 'completed']
+                }, {
+                    model: WorkoutItem,
+                    attributes: ['id', 'completed']
                 }]
             }]
         });
@@ -633,9 +636,19 @@ app.get('/api/leaderboard', async (req, res) => {
             // Gym Score: Count unique days visited
             const gymScore = logs.filter(log => log.gymVisited).length;
 
-            // Diet Score: Count unique days with at least one meal logged (or completed)
-            // Assuming simplified logic: if a log has meals, it counts.
-            const dietScore = logs.filter(log => log.MealItems && log.MealItems.length > 0).length;
+            // Diet Score: Count unique days with at least 3 completed meals
+            const dietScore = logs.filter(log => {
+                if (!log.MealItems) return false;
+                const completedMeals = log.MealItems.filter(m => m.completed).length;
+                return completedMeals >= 3;
+            }).length;
+
+            // Workout Score: Count unique days with at least 4 completed exercises
+            const workoutScore = logs.filter(log => {
+                if (!log.WorkoutItems) return false;
+                const completedWorkouts = log.WorkoutItems.filter(w => w.completed).length;
+                return completedWorkouts >= 4;
+            }).length;
 
             return {
                 id: user.id,
@@ -643,7 +656,8 @@ app.get('/api/leaderboard', async (req, res) => {
                 avatar: user.avatar,
                 gymScore,
                 dietScore,
-                totalScore: gymScore + dietScore
+                workoutScore,
+                totalScore: gymScore + dietScore + workoutScore
             };
         });
 
