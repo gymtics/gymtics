@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../utils/store';
+import { useToast } from '../components/ToastProvider';
 
 // Use environment variable for API URL (Mobile support), fallback to production if missing
 const API_URL = import.meta.env.VITE_API_URL || 'https://gymtics.onrender.com/api';
@@ -13,6 +14,7 @@ const Leaderboard = () => {
     const [loading, setLoading] = useState(true);
     const tableRef = React.useRef(null);
     const [footerStyle, setFooterStyle] = useState({});
+    const toast = useToast();
 
     // Sync Footer width/pos with Table
     React.useLayoutEffect(() => {
@@ -146,13 +148,17 @@ const Leaderboard = () => {
                                     }}>
                                         {!leader.avatar && leader.username[0].toUpperCase()}
                                     </div>
-                                    <span style={{
-                                        fontWeight: leader.id === user?.id ? 'bold' : 'normal',
-                                        color: leader.id === user?.id ? 'var(--primary)' : 'white',
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis'
-                                    }}>
+                                    <span
+                                        onClick={() => toast.info(leader.username)}
+                                        title={leader.username}
+                                        style={{
+                                            fontWeight: leader.id === user?.id ? 'bold' : 'normal',
+                                            color: leader.id === user?.id ? 'var(--primary)' : 'white',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            cursor: 'pointer'
+                                        }}>
                                         {leader.username}
                                     </span>
                                 </div>
