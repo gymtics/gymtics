@@ -200,7 +200,8 @@ const Analytics = () => {
                         background: 'rgba(255,255,255,0.05)',
                         border: '1px solid rgba(255,255,255,0.1)',
                         color: 'var(--text-muted)',
-                        backdropFilter: 'blur(10px)'
+                        backdropFilter: 'blur(10px)',
+                        top: '-10px'
                     }}
                 >
                     ← Back
@@ -337,6 +338,7 @@ const Analytics = () => {
                         }}>
                             <input
                                 type="number"
+                                step="any"
                                 placeholder="Add weight..."
                                 value={weightInput}
                                 onChange={(e) => setWeightInput(e.target.value)}

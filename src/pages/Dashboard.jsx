@@ -372,6 +372,7 @@ const Dashboard = () => {
                             <div style={{ display: 'flex', gap: '0.5rem' }}>
                                 <input
                                     type="number"
+                                    step="any"
                                     placeholder="Qty"
                                     value={mealQuantity}
                                     onChange={(e) => setMealQuantity(e.target.value)}
