@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../utils/store';
-import { useToast } from '../components/ToastProvider';
+
 
 // Use environment variable for API URL (Mobile support), fallback to production if missing
 const API_URL = import.meta.env.VITE_API_URL || 'https://gymtics.onrender.com/api';
@@ -14,7 +14,39 @@ const Leaderboard = () => {
     const [loading, setLoading] = useState(true);
     const tableRef = React.useRef(null);
     const [footerStyle, setFooterStyle] = useState({});
-    const toast = useToast();
+    const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0, text: '' });
+    const tooltipTimeoutRef = React.useRef(null);
+
+    const handleMouseEnter = (e, text) => {
+        const rect = e.target.getBoundingClientRect();
+        setTooltip({
+            visible: true,
+            x: rect.right + 10, // Position to the right of the name
+            y: rect.top,        // Align with top
+            text
+        });
+    };
+
+    const handleMouseLeave = () => {
+        setTooltip(prev => ({ ...prev, visible: false }));
+    };
+
+    const handleClick = (e, text) => {
+        // For mobile/touch
+        const rect = e.target.getBoundingClientRect();
+        setTooltip({
+            visible: true,
+            x: rect.right + 10,
+            y: rect.top,
+            text
+        });
+
+        // Auto hide after 2 seconds
+        if (tooltipTimeoutRef.current) clearTimeout(tooltipTimeoutRef.current);
+        tooltipTimeoutRef.current = setTimeout(() => {
+            setTooltip(prev => ({ ...prev, visible: false }));
+        }, 2000);
+    };
 
     // Sync Footer width/pos with Table
     React.useLayoutEffect(() => {
@@ -149,8 +181,9 @@ const Leaderboard = () => {
                                         {!leader.avatar && leader.username[0].toUpperCase()}
                                     </div>
                                     <span
-                                        onClick={() => toast.info(leader.username)}
-                                        title={leader.username}
+                                        onMouseEnter={(e) => handleMouseEnter(e, leader.username)}
+                                        onMouseLeave={handleMouseLeave}
+                                        onClick={(e) => handleClick(e, leader.username)}
                                         style={{
                                             fontWeight: leader.id === user?.id ? 'bold' : 'normal',
                                             color: leader.id === user?.id ? 'var(--primary)' : 'white',
@@ -237,6 +270,27 @@ const Leaderboard = () => {
                         </div>
                     )}
                 </>
+            )}
+
+            {/* Custom Tooltip */}
+            {tooltip.visible && (
+                <div style={{
+                    position: 'fixed',
+                    top: tooltip.y,
+                    left: tooltip.x,
+                    background: 'rgba(0,0,0,0.9)',
+                    color: '#fff',
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    fontSize: '0.8rem',
+                    pointerEvents: 'none',
+                    zIndex: 9999,
+                    border: '1px solid var(--primary)',
+                    whiteSpace: 'nowrap',
+                    transform: 'translateY(-50%)' // Center vertically relative to top alignment
+                }}>
+                    {tooltip.text}
+                </div>
             )}
         </div>
     );
