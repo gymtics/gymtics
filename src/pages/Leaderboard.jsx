@@ -129,7 +129,7 @@ const Leaderboard = () => {
                                 }}>
                                     {index + 1}
                                 </span>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
                                     {/* Avatar */}
                                     <div style={{
                                         width: '32px',
@@ -141,11 +141,18 @@ const Leaderboard = () => {
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        fontSize: '0.8rem'
+                                        fontSize: '0.8rem',
+                                        flexShrink: 0
                                     }}>
                                         {!leader.avatar && leader.username[0].toUpperCase()}
                                     </div>
-                                    <span style={{ fontWeight: leader.id === user?.id ? 'bold' : 'normal', color: leader.id === user?.id ? 'var(--primary)' : 'white' }}>
+                                    <span style={{
+                                        fontWeight: leader.id === user?.id ? 'bold' : 'normal',
+                                        color: leader.id === user?.id ? 'var(--primary)' : 'white',
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis'
+                                    }}>
                                         {leader.username}
                                     </span>
                                 </div>
@@ -190,7 +197,7 @@ const Leaderboard = () => {
                                 <span style={{ fontWeight: 'bold', color: 'var(--primary)' }}>
                                     #{userRank.rank}
                                 </span>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
                                     <div style={{
                                         width: '32px',
                                         height: '32px',
@@ -201,11 +208,18 @@ const Leaderboard = () => {
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        fontSize: '0.8rem'
+                                        fontSize: '0.8rem',
+                                        flexShrink: 0
                                     }}>
                                         {!userRank.avatar && userRank.username[0].toUpperCase()}
                                     </div>
-                                    <span style={{ fontWeight: 'bold', color: 'var(--primary)' }}>
+                                    <span style={{
+                                        fontWeight: 'bold',
+                                        color: 'var(--primary)',
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis'
+                                    }}>
                                         You
                                     </span>
                                 </div>
