@@ -11,6 +11,27 @@ const Leaderboard = () => {
     const [leaders, setLeaders] = useState([]);
     const [userRank, setUserRank] = useState(null); // New state for user's specific rank
     const [loading, setLoading] = useState(true);
+    const tableRef = React.useRef(null);
+    const [footerStyle, setFooterStyle] = useState({});
+
+    // Sync Footer width/pos with Table
+    React.useLayoutEffect(() => {
+        const updateStyle = () => {
+            if (tableRef.current) {
+                const rect = tableRef.current.getBoundingClientRect();
+                setFooterStyle({
+                    width: `${rect.width}px`,
+                    left: `${rect.left}px`,
+                    transform: 'none', // Remove center transform
+                    bottom: '80px'
+                });
+            }
+        };
+
+        updateStyle();
+        window.addEventListener('resize', updateStyle);
+        return () => window.removeEventListener('resize', updateStyle);
+    }, [leaders, loading]); // Update when content changes might affect layout
 
     useEffect(() => {
         if (user) {
@@ -74,7 +95,7 @@ const Leaderboard = () => {
                 <div style={{ textAlign: 'center', marginTop: '3rem', color: 'var(--text-muted)' }}>Loading champions...</div>
             ) : (
                 <>
-                    <div className="glass-panel" style={{ padding: '0', overflow: 'hidden' }}>
+                    <div ref={tableRef} className="glass-panel" style={{ padding: '0', overflow: 'hidden' }}>
                         <div style={{
                             display: 'grid',
                             gridTemplateColumns: '50px 2fr 1fr 1fr 1fr 1fr',
@@ -150,11 +171,7 @@ const Leaderboard = () => {
                     {userRank && (
                         <div style={{
                             position: 'fixed',
-                            bottom: '80px', // Just above bottom nav
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            width: '95%',
-                            maxWidth: '600px',
+                            ...footerStyle,
                             background: '#1a1a1a',
                             border: '1px solid var(--primary)',
                             borderRadius: '12px',
