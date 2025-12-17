@@ -17,6 +17,8 @@ const Leaderboard = () => {
         }
     }, [user]);
 
+    const [error, setError] = useState(null);
+
     const fetchLeaderboard = async () => {
         try {
             // Pass userId to get specific rank if outside top 100
@@ -25,9 +27,13 @@ const Leaderboard = () => {
             if (data.success) {
                 setLeaders(data.leaderboard);
                 setUserRank(data.userRank);
+            } else {
+                console.error('API Error:', data.error);
+                setError(data.error || 'Failed to load data');
             }
         } catch (err) {
             console.error(err);
+            setError(err.message || 'Network Error');
         } finally {
             setLoading(false);
         }
@@ -128,7 +134,11 @@ const Leaderboard = () => {
 
                         {leaders.length === 0 && (
                             <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-                                No data yet. Be the first to verify consistency!
+                                {error ? (
+                                    <span style={{ color: '#ff4444' }}>Error: {error}</span>
+                                ) : (
+                                    'No data yet. Be the first to verify consistency!'
+                                )}
                             </div>
                         )}
                     </div>

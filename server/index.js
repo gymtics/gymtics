@@ -613,6 +613,7 @@ app.get('/api/feedback', async (req, res) => {
 
 // Get Leaderboard Data
 app.get('/api/leaderboard', async (req, res) => {
+    console.log('[Leaderboard] Request received');
     try {
         const users = await User.findAll({
             attributes: ['id', 'username', 'avatar'],
