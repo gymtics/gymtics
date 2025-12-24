@@ -15,18 +15,18 @@ const GlobalChat = () => {
     const messagesEndRef = useRef(null);
     const [isOpen, setIsOpen] = useState(false); // Toggle like the chatbot
 
+    const [isConnected, setIsConnected] = useState(false); // Connection status
+
     // Initialize Socket
     useEffect(() => {
-        // Connect to the same host as the frontend (relative path if proxy is set, or explicit URL)
-        // In dev, vite proxy handles /api, but socket.io needs explicit URL if ports differ
-        // Assuming /api proxy logic or same domain for prod
-        const newSocket = io('/', { // Connect to current host
-            path: '/socket.io/', // Default path
-            autoConnect: false
+        // ... (existing code)
+        const newSocket = io('/', {
+            path: '/socket.io/',
+            autoConnect: false,
+            transports: ['websocket', 'polling'] // Explicitly enable both
         });
 
         setSocket(newSocket);
-
         return () => newSocket.close();
     }, []);
 
@@ -39,19 +39,40 @@ const GlobalChat = () => {
         }
 
         socket.connect();
-        socket.emit('join_global');
+
+        // Debugging Events
+        socket.on('connect', () => {
+            console.log('[GlobalChat] Connected:', socket.id);
+            setIsConnected(true);
+            socket.emit('join_global');
+        });
+
+        socket.on('connect_error', (err) => {
+            console.error('[GlobalChat] Connection Error:', err);
+            setIsConnected(false);
+        });
+
+        socket.on('disconnect', () => {
+            console.log('[GlobalChat] Disconnected');
+            setIsConnected(false);
+        });
 
         socket.on('receive_history', (history) => {
+            console.log('[GlobalChat] History received:', history.length);
             setMessages(history);
             scrollToBottom();
         });
 
         socket.on('receive_message', (message) => {
+            console.log('[GlobalChat] Message received:', message);
             setMessages((prev) => [...prev, message]);
             scrollToBottom();
         });
 
         return () => {
+            socket.off('connect');
+            socket.off('connect_error');
+            socket.off('disconnect');
             socket.off('receive_history');
             socket.off('receive_message');
         };
@@ -139,7 +160,18 @@ const GlobalChat = () => {
                             <span style={{ fontSize: '1.2rem' }}>🌍</span>
                             <h3 style={{ margin: 0, fontSize: '1rem', color: '#fff', fontWeight: 'bold' }}>Community Chat</h3>
                         </div>
-                        <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.8)' }}>Live</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <div style={{
+                                width: '8px',
+                                height: '8px',
+                                borderRadius: '50%',
+                                background: isConnected ? '#4ade80' : '#ff4444',
+                                boxShadow: isConnected ? '0 0 5px #4ade80' : 'none'
+                            }} />
+                            <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.8)' }}>
+                                {isConnected ? 'Live' : 'Connecting...'}
+                            </span>
+                        </div>
                     </div>
 
                     {/* Messages */}
