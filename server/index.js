@@ -380,20 +380,21 @@ app.post('/api/auth/update-avatar', async (req, res) => {
 
 // API: Chatbot
 app.post('/api/chat', async (req, res) => {
-    const { message, userId, history } = req.body; // Accept history
+    const { message, userId, history } = req.body;
     try {
         const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
 
         if (!apiKey) {
+            console.error('[Chatbot] ❌ Error: Missing GEMINI_API_KEY or GOOGLE_API_KEY in environment variables.');
             return res.json({
-                success: true,
-                reply: "I'm ready to help! To activate my full AI capabilities, please add a GEMINI_API_KEY to the server environment variables. In the meantime: Eat clean, train hard!"
+                success: true, // Return success to show the fallback message nicely in the UI
+                reply: "I'm currently undergoing maintenance (Missing Configuration). Please contact the administrator."
             });
         }
 
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({
-            model: "gemini-flash-latest",
+            model: "gemini-1.5-flash", // Updated to a more stable model name if needed, or keep gemini-flash-latest
             systemInstruction: `You are Gymtics AI, an elite fitness coach and nutritionist with 20+ years of experience.
             
             **Your Mission:** Help users achieve their fitness goals through science-backed, personalized, and motivating advice.
@@ -412,7 +413,7 @@ app.post('/api/chat', async (req, res) => {
         });
 
         const chat = model.startChat({
-            history: history || [], // Use passed history or empty
+            history: history || [],
         });
 
         const result = await chat.sendMessage(message);
@@ -422,7 +423,12 @@ app.post('/api/chat', async (req, res) => {
         console.log(`[Chatbot] Success: ${text.substring(0, 50)}...`);
         res.json({ success: true, reply: text });
     } catch (err) {
-        console.error(`[Chatbot] API Error: ${err.message}`);
+        console.error(`[Chatbot] ❌ API Error:`, err.message);
+        // Log full error details for debugging
+        if (err.response) {
+            console.error('[Chatbot] Error Details:', JSON.stringify(err.response, null, 2));
+        }
+
         res.status(500).json({ error: 'Failed to generate response' });
     }
 });
