@@ -33,7 +33,7 @@ const WelcomePage = () => {
                     letterSpacing: '2px',
                     animationDelay: '0.1s'
                 }}>
-                    YOU AND YOUR GOALS
+                    ME AND MY GOALS
                 </h2>
                 <p className="animate-slide-up" style={{
                     fontSize: '1.25rem',

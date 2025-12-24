@@ -174,7 +174,7 @@ const AuthPages = () => {
                         <>
                             BACK TO <br />
                             <span style={{ fontSize: '1.5rem', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 'bold' }}>
-                                YOU AND YOUR GOALS
+                                ME AND MY GOALS
                             </span>
                         </>
                     ) :
