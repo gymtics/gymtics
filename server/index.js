@@ -809,21 +809,37 @@ io.on('connection', (socket) => {
     });
 
     // Handle New Message
-    socket.on('send_message', async (data) => {
-        // data: { userId, username, avatar, text }
+    socket.on('send_message', async (data, callback) => {
+        console.log(`[Socket] Received message from ${data.username} (${data.userId})`);
+
         try {
+            // Validate
+            if (!data.userId || !data.text) {
+                throw new Error('Missing user ID or text');
+            }
+
             // Save to DB
-            const message = await GlobalMessage.create({
+            const newMessage = await GlobalMessage.create({
                 userId: data.userId,
                 username: data.username,
                 avatar: data.avatar,
                 text: data.text
             });
 
-            // Broadcast to everyone in 'global_chat'
-            io.to('global_chat').emit('receive_message', message);
+            const plainMessage = newMessage.get({ plain: true });
+
+            // Broadcast to everyone in 'global_chat' (including sender)
+            io.to('global_chat').emit('receive_message', plainMessage);
+
+            // Acknowledge success to sender
+            if (callback) callback({ status: 'ok', message: plainMessage });
+
         } catch (err) {
-            console.error('[Socket] Message error:', err);
+            console.error('[Socket] Message failure:', err);
+
+            // Acknowledge failure
+            if (callback) callback({ status: 'error', error: err.message });
+
             socket.emit('message_error', {
                 error: 'Failed to send message',
                 details: err.message

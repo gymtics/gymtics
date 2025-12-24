@@ -101,7 +101,16 @@ const GlobalChat = () => {
             text: input
         };
 
-        socket.emit('send_message', messageData);
+        console.log('[GlobalChat] Sending:', messageData);
+
+        // Emit with Acknowledgement
+        socket.emit('send_message', messageData, (response) => {
+            console.log('[GlobalChat] Server Acknowledgment:', response);
+            if (response.status !== 'ok') {
+                alert(`Error sending message: ${response.error}`);
+            }
+        });
+
         setInput('');
     };
 
