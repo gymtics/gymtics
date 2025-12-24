@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const nodemailer = require('nodemailer');
 const twilio = require('twilio');
 const { sequelize, User, GymLog, WorkoutItem, MealItem, WeightLog, ManualPR, Feedback, OTP } = require('./models');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 dotenv.config();
 
@@ -374,6 +375,41 @@ app.post('/api/auth/update-avatar', async (req, res) => {
     } catch (err) {
         console.error('[Avatar Update] Error:', err);
         res.status(500).json({ error: 'Failed to update avatar: ' + err.message });
+    }
+});
+
+// API: Chatbot
+app.post('/api/chat', async (req, res) => {
+    const { message, userId } = req.body;
+    try {
+        const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY; // Support both
+
+        if (!apiKey) {
+            // Fallback response if no API key is configured
+            return res.json({
+                success: true,
+                reply: "I'm ready to help! To activate my full AI capabilities, please add a GEMINI_API_KEY to the server environment variables. In the meantime: Eat clean, train hard!"
+            });
+        }
+
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+        const prompt = `You are Gymtics AI, an expert fitness coach and nutritionist.
+        User question: "${message}"
+        
+        Provide a helpful, motivating, and concise answer (max 150 words). 
+        If the user asks for a workout or diet plan, provide a brief standardized structure.
+        Tone: Professional, Energetic, Supportive.`;
+
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+
+        res.json({ success: true, reply: text });
+    } catch (err) {
+        console.error('Chat API Error:', err);
+        res.status(500).json({ error: 'Failed to generate response' });
     }
 });
 

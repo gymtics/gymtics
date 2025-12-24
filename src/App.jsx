@@ -12,6 +12,7 @@ const DashboardDay = lazy(() => import('./pages/DashboardDay'));
 const Analytics = lazy(() => import('./pages/Analytics'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const Leaderboard = lazy(() => import('./pages/Leaderboard'));
+import Chatbot from './components/Chatbot';
 
 // Loading Component
 const Loading = () => (
@@ -85,6 +86,7 @@ const App = () => {
                   <Route path="/admin" element={<AdminDashboard />} />
                 </Routes>
               </Suspense>
+              <Chatbot />
             </Router>
           </DataProvider>
         </AuthProvider>
