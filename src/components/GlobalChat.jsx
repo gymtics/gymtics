@@ -57,6 +57,11 @@ const GlobalChat = () => {
             setIsConnected(false);
         });
 
+        socket.on('message_error', (err) => {
+            console.error('[GlobalChat] Message Error:', err);
+            alert(`Message failed: ${err.details || err.error}`);
+        });
+
         socket.on('receive_history', (history) => {
             console.log('[GlobalChat] History received:', history.length);
             setMessages(history);
@@ -73,6 +78,7 @@ const GlobalChat = () => {
             socket.off('connect');
             socket.off('connect_error');
             socket.off('disconnect');
+            socket.off('message_error');
             socket.off('receive_history');
             socket.off('receive_message');
         };

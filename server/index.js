@@ -824,6 +824,10 @@ io.on('connection', (socket) => {
             io.to('global_chat').emit('receive_message', message);
         } catch (err) {
             console.error('[Socket] Message error:', err);
+            socket.emit('message_error', {
+                error: 'Failed to send message',
+                details: err.message
+            });
         }
     });
 
