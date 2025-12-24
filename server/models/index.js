@@ -1,12 +1,12 @@
 const sequelize = require('../config/database');
 const User = require('./User');
-const GymLog = require('./GymLog')(sequelize);
-const WorkoutItem = require('./WorkoutItem')(sequelize);
-const MealItem = require('./MealItem')(sequelize);
-const WeightLog = require('./WeightLog')(sequelize);
-const ManualPR = require('./ManualPR')(sequelize);
-const Feedback = require('./Feedback')(sequelize);
-const OTP = require('./OTP')(sequelize);
+const GymLog = require('./GymLog');
+const WorkoutItem = require('./WorkoutItem');
+const MealItem = require('./MealItem');
+const WeightLog = require('./WeightLog');
+const ManualPR = require('./ManualPR');
+const Feedback = require('./Feedback');
+const OTP = require('./OTP');
 const GlobalMessage = require('./GlobalMessage')(sequelize);
 
 // Associations
