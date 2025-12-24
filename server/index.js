@@ -424,12 +424,25 @@ app.post('/api/chat', async (req, res) => {
         res.json({ success: true, reply: text });
     } catch (err) {
         console.error(`[Chatbot] ❌ API Error:`, err.message);
-        // Log full error details for debugging
-        if (err.response) {
-            console.error('[Chatbot] Error Details:', JSON.stringify(err.response, null, 2));
+
+        let reply = "Sorry, I encountered an error. Please try again.";
+
+        // Handle Rate Limiting (429)
+        if (err.message.includes('429') || err.status === 429) {
+            reply = "I'm receiving too many requests right now(Quota Exceeded). Please try again in a minute.";
+            return res.json({ success: true, reply });
         }
 
-        res.status(500).json({ error: 'Failed to generate response' });
+        // Handle 404 (Model not found)
+        if (err.message.includes('404') || err.status === 404) {
+            reply = `Configuration Error: Model not found. (${err.message})`;
+            return res.json({ success: true, reply });
+        }
+
+        // Return actual error for debugging (if not 500)
+        // ideally we would return success: true with the error message so the user sees it in chat
+        reply = `Error: ${err.message}`;
+        return res.json({ success: true, reply });
     }
 });
 
