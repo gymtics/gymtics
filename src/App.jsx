@@ -13,8 +13,9 @@ const Analytics = lazy(() => import('./pages/Analytics'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const Leaderboard = lazy(() => import('./pages/Leaderboard'));
 import Chatbot from './components/Chatbot';
+const GlobalChat = lazy(() => import('./components/GlobalChat')); // [NEW] Global Chat
 
-// Loading Component
+
 const Loading = () => (
   <div style={{
     display: 'flex',
@@ -87,6 +88,7 @@ const App = () => {
                 </Routes>
               </Suspense>
               <Chatbot />
+              <GlobalChat />
             </Router>
           </DataProvider>
         </AuthProvider>

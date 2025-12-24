@@ -3,7 +3,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const nodemailer = require('nodemailer');
 const twilio = require('twilio');
-const { sequelize, User, GymLog, WorkoutItem, MealItem, WeightLog, ManualPR, Feedback, OTP } = require('./models');
+const { sequelize, User, GymLog, WorkoutItem, MealItem, WeightLog, ManualPR, Feedback, OTP, GlobalMessage } = require('./models');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 dotenv.config();
@@ -771,10 +771,73 @@ if (process.env.NODE_ENV === 'production') {
     });
 }
 
-// Sync Database and Start Server
+const http = require('http'); // [NEW]
+const { Server } = require('socket.io'); // [NEW]
+
+// ... (imports)
+
+// Create HTTP Server [NEW]
+const server = http.createServer(app);
+
+// Initialize Socket.io [NEW]
+const io = new Server(server, {
+    cors: {
+        origin: "*", // Allow all origins for now (adjust for prod)
+        methods: ["GET", "POST"]
+    }
+});
+
+// Socket.io Logic [NEW]
+io.on('connection', (socket) => {
+    console.log(`[Socket] User connected: ${socket.id}`);
+
+    // Join Global Chat
+    socket.on('join_global', async () => {
+        socket.join('global_chat');
+        console.log(`[Socket] ${socket.id} joined global chat`);
+
+        // Send last 50 messages history
+        try {
+            const history = await GlobalMessage.findAll({
+                limit: 50,
+                order: [['createdAt', 'ASC']]
+            });
+            socket.emit('receive_history', history);
+        } catch (err) {
+            console.error('[Socket] Failed to fetch history:', err);
+        }
+    });
+
+    // Handle New Message
+    socket.on('send_message', async (data) => {
+        // data: { userId, username, avatar, text }
+        try {
+            // Save to DB
+            const message = await GlobalMessage.create({
+                userId: data.userId,
+                username: data.username,
+                avatar: data.avatar,
+                text: data.text
+            });
+
+            // Broadcast to everyone in 'global_chat'
+            io.to('global_chat').emit('receive_message', message);
+        } catch (err) {
+            console.error('[Socket] Message error:', err);
+        }
+    });
+
+    socket.on('disconnect', () => {
+        console.log(`[Socket] User disconnected: ${socket.id}`);
+    });
+});
+
+
+// Sync Database and Start Server [MODIFIED]
 sequelize.sync({ alter: true }).then(() => {
     console.log('✅ Database Connected & Synced');
-    app.listen(PORT, () => {
+    // server.listen instead of app.listen
+    server.listen(PORT, () => {
         console.log(`Server started on port ${PORT}`);
     });
 }).catch(err => {
