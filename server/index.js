@@ -380,12 +380,11 @@ app.post('/api/auth/update-avatar', async (req, res) => {
 
 // API: Chatbot
 app.post('/api/chat', async (req, res) => {
-    const { message, userId } = req.body;
+    const { message, userId, history } = req.body; // Accept history
     try {
-        const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY; // Support both
+        const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
 
         if (!apiKey) {
-            // Fallback response if no API key is configured
             return res.json({
                 success: true,
                 reply: "I'm ready to help! To activate my full AI capabilities, please add a GEMINI_API_KEY to the server environment variables. In the meantime: Eat clean, train hard!"
@@ -393,16 +392,30 @@ app.post('/api/chat', async (req, res) => {
         }
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+        const model = genAI.getGenerativeModel({
+            model: "gemini-flash-latest",
+            systemInstruction: `You are Gymtics AI, an elite fitness coach and nutritionist with 20+ years of experience.
+            
+            **Your Mission:** Help users achieve their fitness goals through science-backed, personalized, and motivating advice.
 
-        const prompt = `You are Gymtics AI, an expert fitness coach and nutritionist.
-        User question: "${message}"
-        
-        Provide a helpful, motivating, and concise answer (max 150 words). 
-        If the user asks for a workout or diet plan, provide a brief standardized structure.
-        Tone: Professional, Energetic, Supportive.`;
+            **Guidelines:**
+            1.  **Be Direct & Actionable:** Avoid fluff. Give clear steps.
+            2.  **Format for Readability:** 
+                *   Use **Bold** for key concepts.
+                *   Use bullet points or numbered lists for plans.
+            3.  **Diet Plans:** Always specify Macros (Protein, Carbs, Fats) estimates if asked for a plan.
+            4.  **Workouts:** Specify Sets, Reps, and Rest times.
+            5.  **Safety First:** If a user mentions pain or injury, advise a professional check-up.
+            6.  **Tone:** Professional, Encouraging, but No-Nonsense (like a real coach).
+            
+            **Context:** You are chatting with a user of the Gymtics app. Keep answers relevant to gym/fitness.`
+        });
 
-        const result = await model.generateContent(prompt);
+        const chat = model.startChat({
+            history: history || [], // Use passed history or empty
+        });
+
+        const result = await chat.sendMessage(message);
         const response = await result.response;
         const text = response.text();
 

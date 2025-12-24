@@ -29,11 +29,18 @@ const Chatbot = () => {
         setLoading(true);
 
         try {
+            // Prepare history (last 10 messages) for context
+            const history = messages.slice(-10).map(m => ({
+                role: m.sender === 'user' ? 'user' : 'model',
+                parts: [{ text: m.text }]
+            }));
+
             const res = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     message: input,
+                    history: history,
                     userId: user?.id
                 })
             });
