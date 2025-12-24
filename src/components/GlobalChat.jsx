@@ -189,7 +189,9 @@ const GlobalChat = () => {
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <span style={{ fontSize: '1.2rem' }}>🌍</span>
-                            <h3 style={{ margin: 0, fontSize: '1rem', color: '#fff', fontWeight: 'bold' }}>Community Chat</h3>
+                            <h3 style={{ margin: 0, fontSize: '1rem', color: '#fff', fontWeight: 'bold' }}>
+                                Community Chat ({messages.length})
+                            </h3>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                             <div style={{
@@ -259,6 +261,11 @@ const GlobalChat = () => {
                             );
                         })}
                         <div ref={messagesEndRef} />
+                    </div>
+
+                    {/* Debug Dump */}
+                    <div style={{ padding: '5px', fontSize: '0.6rem', color: '#aaa', background: '#222' }}>
+                        DEBUG: {JSON.stringify(messages.slice(-1))}
                     </div>
 
                     {/* Input */}
