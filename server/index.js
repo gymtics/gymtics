@@ -393,7 +393,7 @@ app.post('/api/chat', async (req, res) => {
         }
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
         const prompt = `You are Gymtics AI, an expert fitness coach and nutritionist.
         User question: "${message}"
@@ -406,9 +406,10 @@ app.post('/api/chat', async (req, res) => {
         const response = await result.response;
         const text = response.text();
 
+        console.log(`[Chatbot] Success: ${text.substring(0, 50)}...`);
         res.json({ success: true, reply: text });
     } catch (err) {
-        console.error('Chat API Error:', err);
+        console.error(`[Chatbot] API Error: ${err.message}`);
         res.status(500).json({ error: 'Failed to generate response' });
     }
 });
