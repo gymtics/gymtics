@@ -70,8 +70,7 @@ const GlobalChat = () => {
 
         socket.on('receive_message', (message) => {
             console.log('[GlobalChat] Message received:', message);
-            setMessages((prev) => [...prev, message]);
-            scrollToBottom();
+            addMessage(message);
         });
 
         return () => {
@@ -106,12 +105,29 @@ const GlobalChat = () => {
         // Emit with Acknowledgement
         socket.emit('send_message', messageData, (response) => {
             console.log('[GlobalChat] Server Acknowledgment:', response);
-            if (response.status !== 'ok') {
+            if (response.status === 'ok') {
+                // Manually add to UI to ensure sender sees it immediately
+                addMessage(response.message);
+            } else {
                 alert(`Error sending message: ${response.error}`);
             }
         });
 
         setInput('');
+    };
+
+    // Helper to add unique messages
+    const addMessage = (newMessage) => {
+        setMessages(prev => {
+            // Check for duplicates based on ID or Timestamp+UserID
+            const exists = prev.some(m =>
+                (m.id && m.id === newMessage.id) ||
+                (m.timestamp === newMessage.timestamp && m.userId === newMessage.userId)
+            );
+            if (exists) return prev;
+            return [...prev, newMessage];
+        });
+        scrollToBottom();
     };
 
     return (
