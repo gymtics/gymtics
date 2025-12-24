@@ -54,10 +54,9 @@ const WelcomePage = () => {
                     </button>
 
                     <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-                        <a
-                            href="/gymtics.apk"
-                            download
+                        <button
                             className="btn-outline"
+                            onClick={() => alert("Coming soon to the Google Play Store")}
                             style={{
                                 textDecoration: 'none',
                                 display: 'flex',
@@ -66,15 +65,17 @@ const WelcomePage = () => {
                                 padding: '10px 20px',
                                 color: 'var(--text-muted)',
                                 borderColor: 'var(--glass-border)',
+                                background: 'transparent',
+                                cursor: 'pointer',
                                 fontSize: '0.9rem'
                             }}
                         >
                             <span style={{ fontSize: '1.1rem' }}>📱</span> Android
-                        </a>
+                        </button>
 
                         <button
                             className="btn-outline"
-                            onClick={() => alert("iPhone does not allow downloading apps from websites (unlike Android). We are currently submitting to the Apple App Store. Please check back soon!")}
+                            onClick={() => alert("Coming soon to the Apple App Store")}
                             style={{
                                 textDecoration: 'none',
                                 display: 'flex',
