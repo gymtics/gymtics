@@ -394,7 +394,7 @@ app.post('/api/chat', async (req, res) => {
 
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash", // Updated to a more stable model name if needed, or keep gemini-flash-latest
+            model: "gemini-2.0-flash", // Updated to a valid model for this API key
             systemInstruction: `You are Gymtics AI, an elite fitness coach and nutritionist with 20+ years of experience.
             
             **Your Mission:** Help users achieve their fitness goals through science-backed, personalized, and motivating advice.
