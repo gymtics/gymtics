@@ -30,10 +30,14 @@ const Chatbot = () => {
 
         try {
             // Prepare history (last 10 messages) for context
-            const history = messages.slice(-10).map(m => ({
-                role: m.sender === 'user' ? 'user' : 'model',
-                parts: [{ text: m.text }]
-            }));
+            // Exclude the first message (Welcome message) so history starts with User if possible
+            const history = messages
+                .filter((_, idx) => idx !== 0)
+                .slice(-10)
+                .map(m => ({
+                    role: m.sender === 'user' ? 'user' : 'model',
+                    parts: [{ text: m.text }]
+                }));
 
             const res = await fetch('/api/chat', {
                 method: 'POST',
