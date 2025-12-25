@@ -101,21 +101,45 @@ const GlobalChat = () => {
             text: input
         };
 
+        // Check connection
+        if (!socket.connected) {
+            alert('Not connected to chat server. Please wait...');
+            return;
+        }
+
         setLastLog('Sending...');
         console.log('[GlobalChat] Sending:', messageData);
 
-        // Emit with Acknowledgement
-        socket.emit('send_message', messageData, (response) => {
-            console.log('[GlobalChat] Server Acknowledgment:', response);
-            setLastLog(`Ack: ${response ? response.status : 'No Resp'}`);
+        // Timeout Promise
+        const timeout = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Request timed out')), 5000)
+        );
 
-            if (response && response.status === 'ok') {
-                // Manually add to UI to ensure sender sees it immediately
-                addMessage(response.message);
-            } else {
-                alert(`Error sending message: ${response ? response.error : 'Unknown Error'}`);
-            }
+        // Emit Promise
+        const emit = new Promise((resolve) => {
+            socket.emit('send_message', messageData, (response) => {
+                resolve(response);
+            });
         });
+
+        // Race Timeout vs Emit
+        Promise.race([emit, timeout])
+            .then((response) => {
+                console.log('[GlobalChat] Server Acknowledgment:', response);
+                setLastLog(`Ack: ${response ? response.status : 'No Resp'}`);
+
+                if (response && response.status === 'ok') {
+                    // Manually add to UI to ensure sender sees it immediately
+                    addMessage(response.message);
+                } else {
+                    alert(`Error sending message: ${response ? response.error : 'Unknown Error'}`);
+                }
+            })
+            .catch((err) => {
+                console.error('[GlobalChat] Send Error:', err);
+                setLastLog(`Error: ${err.message}`);
+                alert(`Failed to send: ${err.message}. Try a smaller message or check connection.`);
+            });
 
         setInput('');
     };

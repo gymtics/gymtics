@@ -811,6 +811,7 @@ const server = http.createServer(app);
 
 // Initialize Socket.io [NEW]
 const io = new Server(server, {
+    maxHttpBufferSize: 1e7, // 10MB
     cors: {
         origin: "*", // Allow all origins for now (adjust for prod)
         methods: ["GET", "POST"]
