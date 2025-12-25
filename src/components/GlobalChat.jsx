@@ -16,7 +16,7 @@ const GlobalChat = () => {
     const [isOpen, setIsOpen] = useState(false); // Toggle like the chatbot
 
     const [isConnected, setIsConnected] = useState(false); // Connection status
-    const [lastLog, setLastLog] = useState('Init'); // Debug state
+
 
     // Initialize Socket
     useEffect(() => {
@@ -107,8 +107,17 @@ const GlobalChat = () => {
             return;
         }
 
-        setLastLog('Sending...');
-        console.log('[GlobalChat] Sending:', messageData);
+        // Optimistic Update
+        const optimisticMessage = {
+            ...messageData,
+            id: `temp-${Date.now()}`,
+            timestamp: new Date().toISOString(),
+            isOptimistic: true
+        };
+        addMessage(optimisticMessage);
+
+        // Clear input immediately
+        setInput('');
 
         // Timeout Promise
         const timeout = new Promise((_, reject) =>
@@ -125,20 +134,19 @@ const GlobalChat = () => {
         // Race Timeout vs Emit
         Promise.race([emit, timeout])
             .then((response) => {
-                console.log('[GlobalChat] Server Acknowledgment:', response);
-                setLastLog(`Ack: ${response ? response.status : 'No Resp'}`);
-
                 if (response && response.status === 'ok') {
-                    // Manually add to UI to ensure sender sees it immediately
+                    // Server returned the real message, add it (will replace optimistic one)
                     addMessage(response.message);
                 } else {
+                    // Revert optimistic if failed? 
+                    // For now, just alert. User sees their message. 
+                    // Ideally we mark it as failed red, but alert is fine for now.
                     alert(`Error sending message: ${response ? response.error : 'Unknown Error'}`);
                 }
             })
             .catch((err) => {
                 console.error('[GlobalChat] Send Error:', err);
-                setLastLog(`Error: ${err.message}`);
-                alert(`Failed to send: ${err.message}. Try a smaller message or check connection.`);
+                alert(`Failed to send: ${err.message}.`);
             });
 
         setInput('');
@@ -147,13 +155,23 @@ const GlobalChat = () => {
     // Helper to add unique messages
     const addMessage = (newMessage) => {
         setMessages(prev => {
-            // Check for duplicates based on ID or Timestamp+UserID
-            const exists = prev.some(m =>
+            // Check if we have an optimistic version of this message (same text/user, temporary ID)
+            const isOptimistic = (m) =>
+                m.isOptimistic &&
+                m.text === newMessage.text &&
+                m.userId === newMessage.userId;
+
+            // Remove optimistic version if real one arrives
+            const filtered = prev.filter(m => !isOptimistic(m));
+
+            // Check for real duplicates
+            const exists = filtered.some(m =>
                 (m.id && m.id === newMessage.id) ||
-                (m.timestamp === newMessage.timestamp && m.userId === newMessage.userId)
+                (!m.id && m.timestamp === newMessage.timestamp && m.userId === newMessage.userId)
             );
-            if (exists) return prev;
-            return [...prev, newMessage];
+
+            if (exists) return filtered;
+            return [...filtered, newMessage];
         });
         scrollToBottom();
     };
@@ -218,7 +236,7 @@ const GlobalChat = () => {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <span style={{ fontSize: '1.2rem' }}>🌍</span>
                             <h3 style={{ margin: 0, fontSize: '1rem', color: '#fff', fontWeight: 'bold' }}>
-                                Community Chat ({messages.length})
+                                Community Chat
                             </h3>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
@@ -292,9 +310,7 @@ const GlobalChat = () => {
                     </div>
 
                     {/* Debug Dump */}
-                    <div style={{ padding: '5px', fontSize: '0.6rem', color: '#aaa', background: '#222' }}>
-                        LOG: {lastLog} | COUNT: {messages.length}
-                    </div>
+
 
                     {/* Input */}
                     <form onSubmit={handleSend} style={{
