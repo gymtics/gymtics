@@ -16,6 +16,7 @@ const GlobalChat = () => {
     const [isOpen, setIsOpen] = useState(false); // Toggle like the chatbot
 
     const [isConnected, setIsConnected] = useState(false); // Connection status
+    const [lastLog, setLastLog] = useState('Init'); // Debug state
 
     // Initialize Socket
     useEffect(() => {
@@ -23,7 +24,7 @@ const GlobalChat = () => {
         const newSocket = io('/', {
             path: '/socket.io/',
             autoConnect: false,
-            transports: ['websocket', 'polling'] // Explicitly enable both
+            transports: ['websocket'] // Force WebSocket to avoid polling issues
         });
 
         setSocket(newSocket);
@@ -100,16 +101,19 @@ const GlobalChat = () => {
             text: input
         };
 
+        setLastLog('Sending...');
         console.log('[GlobalChat] Sending:', messageData);
 
         // Emit with Acknowledgement
         socket.emit('send_message', messageData, (response) => {
             console.log('[GlobalChat] Server Acknowledgment:', response);
-            if (response.status === 'ok') {
+            setLastLog(`Ack: ${response ? response.status : 'No Resp'}`);
+
+            if (response && response.status === 'ok') {
                 // Manually add to UI to ensure sender sees it immediately
                 addMessage(response.message);
             } else {
-                alert(`Error sending message: ${response.error}`);
+                alert(`Error sending message: ${response ? response.error : 'Unknown Error'}`);
             }
         });
 
@@ -265,7 +269,7 @@ const GlobalChat = () => {
 
                     {/* Debug Dump */}
                     <div style={{ padding: '5px', fontSize: '0.6rem', color: '#aaa', background: '#222' }}>
-                        DEBUG: {JSON.stringify(messages.slice(-1))}
+                        LOG: {lastLog} | COUNT: {messages.length}
                     </div>
 
                     {/* Input */}
