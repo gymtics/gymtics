@@ -3,6 +3,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const nodemailer = require('nodemailer');
 const twilio = require('twilio');
+const bcrypt = require('bcryptjs'); // [NEW] Security
 const { sequelize, User, GymLog, WorkoutItem, MealItem, WeightLog, ManualPR, Feedback, OTP, GlobalMessage } = require('./models');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
@@ -47,7 +48,27 @@ app.use((req, res, next) => {
 // Security & Performance Middleware
 app.use(helmet());
 app.use(compression());
-app.use(cors());
+app.use(compression());
+
+// Security: Restrict CORS [MODIFIED]
+const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:4173',
+    'https://gymtics.onrender.com' // Production
+];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) === -1) {
+            return callback(new Error('The CORS policy for this site does not allow access from the specified Origin.'), false);
+        }
+        return callback(null, true);
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true
+}));
 
 // Rate Limiting
 const limiter = rateLimit({
@@ -334,7 +355,9 @@ app.post('/api/auth/reset-password', async (req, res) => {
         const user = await User.findOne({ where: { email } });
         if (!user) return res.status(400).json({ error: 'User not found' });
 
-        await user.update({ password: newPassword }); // In prod, hash!
+        // Hash new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await user.update({ password: hashedPassword });
 
         console.log(`[Auth] Password reset for: ${email}`);
         res.json({ success: true, message: 'Password reset successfully' });
@@ -352,7 +375,10 @@ app.post('/api/auth/register', async (req, res) => {
         const existingUser = await User.findOne({ where: { email } });
         if (existingUser) return res.status(400).json({ error: 'User already exists' });
 
-        const newUser = await User.create({ username, email, password, avatar: null }); // In prod, hash password!
+        // Hash password before saving
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = await User.create({ username, email, password: hashedPassword, avatar: null });
+
         console.log(`[Auth] Registered user: ${username} (${email})`);
         res.json({ success: true, user: { ...newUser.toJSON(), password: undefined } });
     } catch (err) {
@@ -372,12 +398,30 @@ app.post('/api/auth/login', async (req, res) => {
             }
         });
 
-        if (user && user.password === password) { // In prod, compare hash!
-            console.log(`[Auth] Logged in: ${user.username}`);
-            res.json({ success: true, user: { ...user.toJSON(), password: undefined } });
-        } else {
-            res.status(401).json({ error: 'Invalid credentials' });
+        if (user) {
+            // 1. Try bcrypt comparison
+            const match = await bcrypt.compare(password, user.password);
+
+            if (match) {
+                console.log(`[Auth] Logged in (Hashed): ${user.username}`);
+                res.json({ success: true, user: { ...user.toJSON(), password: undefined } });
+                return;
+            }
+
+            // 2. Legacy Fallback (Transparent Migration)
+            // If hash failed, check if it's plain text (old user)
+            if (user.password === password) {
+                console.warn(`[Auth] Legacy login detected for ${user.username}. Migrating to hash...`);
+                const newHash = await bcrypt.hash(password, 10);
+                await user.update({ password: newHash });
+
+                res.json({ success: true, user: { ...user.toJSON(), password: undefined } });
+                return;
+            }
         }
+
+        // If neither matched or user not found
+        res.status(401).json({ error: 'Invalid credentials' });
     } catch (err) {
         console.error('Login Error:', err.message, err.stack);
         res.status(500).json({ error: 'Server error: ' + err.message });
@@ -813,8 +857,9 @@ const server = http.createServer(app);
 const io = new Server(server, {
     maxHttpBufferSize: 1e7, // 10MB
     cors: {
-        origin: "*", // Allow all origins for now (adjust for prod)
-        methods: ["GET", "POST"]
+        origin: allowedOrigins,
+        methods: ["GET", "POST"],
+        credentials: true
     }
 });
 
