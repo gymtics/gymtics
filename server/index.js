@@ -152,6 +152,36 @@ app.get('/api/debug/email', async (req, res) => {
     }
 });
 
+// Debug Database Route
+app.get('/api/debug/db', async (req, res) => {
+    try {
+        console.log('[Debug DB] Checking database connection...');
+        await sequelize.authenticate();
+        console.log('[Debug DB] Connection authenticated.');
+
+        const messageCount = await GlobalMessage.count();
+        console.log(`[Debug DB] GlobalMessage count: ${messageCount}`);
+
+        const lastMessage = await GlobalMessage.findOne({
+            order: [['createdAt', 'DESC']]
+        });
+
+        res.json({
+            success: true,
+            status: 'connected',
+            messageCount,
+            lastMessage: lastMessage ? lastMessage.toJSON() : 'No messages'
+        });
+    } catch (err) {
+        console.error('[Debug DB] Error:', err);
+        res.status(500).json({
+            success: false,
+            error: err.message,
+            stack: err.stack
+        });
+    }
+});
+
 // Twilio Client
 const twilioClient = process.env.TWILIO_SID && process.env.TWILIO_TOKEN
     ? twilio(process.env.TWILIO_SID, process.env.TWILIO_TOKEN)
