@@ -13,7 +13,7 @@ const AdminDashboard = () => {
 
     const fetchFeedback = async () => {
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'https://gymtics.onrender.com/api';
+            const apiUrl = import.meta.env.VITE_API_URL || '/api';
             const res = await fetch(`${apiUrl}/feedback`);
             const data = await res.json();
             if (data.success) {

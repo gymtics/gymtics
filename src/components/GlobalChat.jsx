@@ -7,7 +7,8 @@ const GlobalChat = () => {
     const { user } = useAuth();
 
     // Only show if user is logged in
-    if (!user) return null;
+    // Only show if user is logged in: Logic moved to return
+
 
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
@@ -175,6 +176,8 @@ const GlobalChat = () => {
         });
         scrollToBottom();
     };
+
+    if (!user) return null;
 
     return (
         <>

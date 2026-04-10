@@ -930,7 +930,7 @@ io.on('connection', (socket) => {
 
 
 // Sync Database and Start Server [MODIFIED]
-sequelize.sync({ alter: true }).then(() => {
+sequelize.sync().then(() => {
     console.log('✅ Database Connected & Synced');
     // server.listen instead of app.listen
     server.listen(PORT, () => {
